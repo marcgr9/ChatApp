@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DataBinding</string>
+    <string name="invalidDate">Data trebuie sa aiba formatul dd/mm/yyyy</string>
+    <string name="invalidName">Numele trebuie sa aiba minim 3 caractere</string>
+    <string name="invalidId">ID-ul e format doar din litere, cifre, ., _ si are 4-16 caractere</string>
+    <string name="invalidEmail">Email-ul e invalid</string>
+</resources>
