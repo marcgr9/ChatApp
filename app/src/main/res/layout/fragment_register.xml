@@ -7,7 +7,7 @@
     <data>
         <variable
             name="registerViewModel"
-            type="ro.marc.databinding.RegisterViewModel" />
+            type="ro.marc.chatapp.RegisterViewModel" />
     </data>
 
     <ScrollView

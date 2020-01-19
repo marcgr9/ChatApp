@@ -1,6 +1,4 @@
-package ro.marc.databinding
-
-import java.util.*
+package ro.marc.chatapp
 
 data class Data(var mId: String, var mEmail: String, var mName: String, var mDate: String) {
     fun getId(): String = mId

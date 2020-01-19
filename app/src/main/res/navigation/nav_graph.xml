@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/register"
-        android:name="ro.marc.databinding.Register"
+        android:name="ro.marc.chatapp.Register"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" />
 </navigation>

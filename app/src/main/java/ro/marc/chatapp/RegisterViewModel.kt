@@ -1,7 +1,5 @@
-package ro.marc.databinding
+package ro.marc.chatapp
 
-import android.provider.Settings.System.getString
-import android.renderscript.BaseObj
 import android.util.Patterns
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable

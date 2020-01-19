@@ -1,4 +1,4 @@
-package ro.marc.databinding
+package ro.marc.chatapp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

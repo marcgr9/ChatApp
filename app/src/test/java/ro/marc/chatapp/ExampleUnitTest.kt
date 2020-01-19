@@ -1,4 +1,4 @@
-package ro.marc.databinding
+package ro.marc.chatapp
 
 import org.junit.Test
 
