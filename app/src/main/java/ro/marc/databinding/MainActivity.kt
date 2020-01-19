@@ -1,21 +1,22 @@
 package ro.marc.databinding
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
-import androidx.databinding.BindingAdapter
-import androidx.databinding.DataBindingUtil
-import ro.marc.databinding.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Register.OnFragmentInteractionListener {
+    override fun onFragmentInteraction(uri: Uri) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        println("interact")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var binding: ActivityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-
-        binding.setRegisterViewModel(RegisterViewModel())
-        binding.executePendingBindings()
+        setContentView(R.layout.activity_main)
+//        var binding: ActivityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+//
+//        binding.setRegisterViewModel(RegisterViewModel())
+//        binding.executePendingBindings()
     }
 
 }

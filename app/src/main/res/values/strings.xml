@@ -1,7 +1,11 @@
 <resources>
-    <string name="app_name">DataBinding</string>
+    <string name="app_name">ChatApp</string>
+
     <string name="invalidDate">Data trebuie sa aiba formatul dd/mm/yyyy</string>
     <string name="invalidName">Numele trebuie sa aiba minim 3 caractere</string>
     <string name="invalidId">ID-ul e format doar din litere, cifre, ., _ si are 4-16 caractere</string>
     <string name="invalidEmail">Email-ul e invalid</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
