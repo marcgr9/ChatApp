@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 
-class MainActivity : AppCompatActivity(), Register.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), Register.OnFragmentInteractionListener, Splash.OnFragmentInteractionListener {
     override fun onFragmentInteraction(uri: Uri) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         println("interact")
