@@ -3,10 +3,14 @@ package ro.marc.chatapp.fragments
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import ro.marc.chatapp.viewmodel.RegisterViewModel
 import ro.marc.chatapp.databinding.FragmentRegisterBinding
 
@@ -45,11 +49,23 @@ class Register : Fragment() {
 
         val binding: FragmentRegisterBinding = FragmentRegisterBinding.inflate(inflater, container, false)
 
-        binding.setRegisterViewModel(RegisterViewModel())
-        // binding.setVariable(BR.regData, data);
-        binding.executePendingBindings()
+        val registerViewModel = RegisterViewModel()
 
+        binding.setRegisterViewModel(registerViewModel)
+
+        binding.executePendingBindings()
         return binding.getRoot()
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        val viewModel = ViewModelProviders.of(activity!!).get(RegisterViewModel::class.java)
+        viewModel.getErrors().observe(activity!!, object : Observer<ArrayList<RegisterViewModel.Errors>> {
+            override fun onChanged(productEntities: ArrayList<RegisterViewModel.Errors>) {
+                println("Asdsf")
+                //Do something
+            }
+        })
     }
 
     // TODO: Rename method, update argument and hook method into UI event
