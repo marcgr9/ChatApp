@@ -1,14 +1,23 @@
-package ro.marc.chatapp
+package ro.marc.chatapp.fragments
 
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import kotlinx.android.synthetic.main.fragment_login.*
+import ro.marc.chatapp.databinding.FragmentLoginBinding
+import ro.marc.chatapp.viewmodel.RegisterViewModel
+import ro.marc.chatapp.databinding.FragmentRegisterBinding
+import ro.marc.chatapp.viewmodel.LoginViewModel
+import androidx.core.content.ContextCompat.startActivity
+import android.content.Intent
+import android.widget.TextView
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -18,12 +27,12 @@ private const val ARG_PARAM2 = "param2"
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [Splash.OnFragmentInteractionListener] interface
+ * [Register.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [Splash.newInstance] factory method to
+ * Use the [Register.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Splash : Fragment() {
+class Login : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -41,21 +50,28 @@ class Splash : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_splash, container, false)
+
+
+        val binding: FragmentLoginBinding = FragmentLoginBinding.inflate(inflater, container, false)
+
+        binding.setLoginViewModel(LoginViewModel())
+        // binding.setVariable(BR.regData, data);
+        binding.executePendingBindings()
+
+        return binding.getRoot()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val handler = Handler()
-        handler.postDelayed(Runnable {
+        val noAccountView = view.findViewById(ro.marc.chatapp.R.id.noAccount) as TextView
 
-
-            val navController = Navigation.findNavController(activity!!, R.id.navHostFragment)
-            navController.navigate(R.id.splash_transition)
-        }, 3000)
-
+        noAccountView.setOnClickListener {
+            val navController = Navigation.findNavController(activity!!,
+                ro.marc.chatapp.R.id.navHostFragment
+            )
+            navController.navigate(ro.marc.chatapp.R.id.action_login_to_register)
+        }
     }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {
@@ -99,12 +115,12 @@ class Splash : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment Splash.
+         * @return A new instance of fragment Register.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            Splash().apply {
+            Register().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

@@ -7,16 +7,25 @@
 
     <fragment
         android:id="@+id/register"
-        android:name="ro.marc.chatapp.Register"
+        android:name="ro.marc.chatapp.fragments.Register"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" />
     <fragment
         android:id="@+id/splash"
-        android:name="ro.marc.chatapp.Splash"
+        android:name="ro.marc.chatapp.fragments.Splash"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash" >
         <action
             android:id="@+id/splash_transition"
+            app:destination="@id/login" />
+    </fragment>
+    <fragment
+        android:id="@+id/login"
+        android:name="ro.marc.chatapp.fragments.Login"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_login_to_register"
             app:destination="@id/register" />
     </fragment>
 </navigation>

@@ -1,22 +1,20 @@
-package ro.marc.chatapp
+package ro.marc.chatapp.viewmodel
 
 import android.util.Patterns
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
+import androidx.lifecycle.ViewModel
+import ro.marc.chatapp.BR
+import ro.marc.chatapp.model.RegisterModel
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
-class RegisterViewModel() : BaseObservable() {
+class RegisterViewModel : BaseObservable() {
 
-
-    var dataVar: Data = Data("", "", "", "");
+    var dataVar: RegisterModel = RegisterModel("", "", "", "")
 
     @Bindable
     var message: String = ""
-
-    init {
-        dataVar = Data("", "", "", "")
-    }
 
     fun setMsg(msg: String) {
         this.message = msg;
@@ -33,10 +31,10 @@ class RegisterViewModel() : BaseObservable() {
 
     private fun inputValid(): String {
         var msg: String = "";
-        if (getEmail().length < 1 || Patterns.EMAIL_ADDRESS.matcher(getEmail()).matches()) msg += "Email-ul e invalid" + "\n"
+        if (getEmail().isEmpty() || Patterns.EMAIL_ADDRESS.matcher(getEmail()).matches()) msg += "Email-ul e invalid" + "\n"
         if (getId().length < 4 || getId().length > 16 || !getId().matches(Regex("[A-Za-z0-9._]+"))) msg += "ID-ul e format doar din litere, cifre, ., _ si are 4-16 caractere" + "\n"
         if (getName().length < 3) msg += "Numele trebuie sa aiba minimn 3 caractere" + "\n"
-        if (!isValidDate(getDate())) msg += "Data trebuie sa aiba formatul dd/mm/yyyy" + "\n"
+        if (!isValidDate(getDate())) msg += "Data nasterii trebuie sa aiba formatul dd/mm/yyyy" + "\n"
 
         return msg
 

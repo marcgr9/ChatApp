@@ -1,6 +1,6 @@
-package ro.marc.chatapp
+package ro.marc.chatapp.model
 
-data class Data(var mId: String, var mEmail: String, var mName: String, var mDate: String) {
+data class RegisterModel(var mId: String, var mEmail: String, var mName: String, var mDate: String) {
     fun getId(): String = mId
     fun getEmail(): String = mEmail
     fun getName(): String = mName

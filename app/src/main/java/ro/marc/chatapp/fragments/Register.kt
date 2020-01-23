@@ -1,4 +1,4 @@
-package ro.marc.chatapp
+package ro.marc.chatapp.fragments
 
 import android.content.Context
 import android.net.Uri
@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import ro.marc.chatapp.viewmodel.RegisterViewModel
 import ro.marc.chatapp.databinding.FragmentRegisterBinding
 
 // TODO: Rename parameter arguments, choose names that match
