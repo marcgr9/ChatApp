@@ -46,25 +46,26 @@ class Register : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-
         val binding: FragmentRegisterBinding = FragmentRegisterBinding.inflate(inflater, container, false)
 
         val registerViewModel = RegisterViewModel()
-
-        binding.setRegisterViewModel(registerViewModel)
+        binding.registerViewModel = registerViewModel
 
         binding.executePendingBindings()
-        return binding.getRoot()
+
+        println("onCreate")
+
+
+        return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        val viewModel = ViewModelProviders.of(activity!!).get(RegisterViewModel::class.java)
-        viewModel.getErrors().observe(activity!!, object : Observer<ArrayList<RegisterViewModel.Errors>> {
-            override fun onChanged(productEntities: ArrayList<RegisterViewModel.Errors>) {
-                println("Asdsf")
-                //Do something
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        println("onViewCreated")
+        val viewModel = ViewModelProviders.of(this).get(RegisterViewModel::class.java)
+
+        viewModel.getErrors().observe(this, Observer {
+            println("observed")
         })
     }
 
