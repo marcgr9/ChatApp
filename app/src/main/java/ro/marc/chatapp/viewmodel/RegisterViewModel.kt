@@ -1,90 +1,50 @@
 package ro.marc.chatapp.viewmodel
 
 import android.util.Patterns
-import androidx.databinding.BaseObservable
-import androidx.databinding.Bindable
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ro.marc.chatapp.BR
 import ro.marc.chatapp.model.RegisterModel
+import ro.marc.chatapp.utils.Utils
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
-class RegisterViewModel : BaseObservable() {
+class RegisterViewModel : ViewModel() {
 
-    var dataVar: RegisterModel = RegisterModel("", "", "", "")
-
-    @Bindable
-    var message: String = ""
-
-    fun setMsg(msg: String) {
-        this.message = msg;
-        notifyPropertyChanged(BR.message)
+    enum class Errors {
+        ERREmail, ERRID, ERRName, ERRDate, ERRPassword
     }
 
-    fun getMsg(): String {
-        return this.message
+    val registerModelLiveData: LiveData<RegisterModel>
+        get() = _registerModelLiveData
+    private val _registerModelLiveData = MutableLiveData<RegisterModel>()
+
+    init {
+        _registerModelLiveData.value = RegisterModel()
     }
+
+    var errs: MutableLiveData<ArrayList<Errors>> = MutableLiveData()
+
+    fun getErrors(): MutableLiveData<ArrayList<Errors>> = errs
 
     fun onRegisterClicked() {
-        setMsg(inputValid())
+        val registerModel = _registerModelLiveData.value!!
+
+        var err: ArrayList<Errors> = ArrayList()
+
+        val email: String? = registerModel.email
+        val id: String? = registerModel.id
+        val name: String? = registerModel.name
+        val birthday: String? = registerModel.date
+        val passwd: String? = registerModel.password
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email!!).matches()) err.add(Errors.ERREmail)
+        if (id!!.length < 4 || id!!.length > 16 || !id!!.matches(Regex("[A-Za-z0-9._]+"))) err.add(Errors.ERRID)
+        if (name!!.length < 3) err.add(Errors.ERRName)
+        if (!Utils.isValidDate(birthday!!)) err.add(Errors.ERRDate)
+        if (passwd!!.length < 4 || !passwd!!.matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))) err.add(Errors.ERRPassword)
+
+        errs.value = err
     }
 
-    private fun inputValid(): String {
-        var msg: String = "";
-        if (getEmail().isEmpty() || Patterns.EMAIL_ADDRESS.matcher(getEmail()).matches()) msg += "Email-ul e invalid" + "\n"
-        if (getId().length < 4 || getId().length > 16 || !getId().matches(Regex("[A-Za-z0-9._]+"))) msg += "ID-ul e format doar din litere, cifre, ., _ si are 4-16 caractere" + "\n"
-        if (getName().length < 3) msg += "Numele trebuie sa aiba minimn 3 caractere" + "\n"
-        if (!isValidDate(getDate())) msg += "Data nasterii trebuie sa aiba formatul dd/mm/yyyy" + "\n"
-
-        return msg
-
-    }
-
-    fun setEmail(email: String) {
-        this.dataVar.setEmail(email)
-    }
-
-    @Bindable
-    fun getEmail(): String {
-        return dataVar.getEmail()
-    }
-
-    fun setId(id: String) {
-        this.dataVar.setId(id)
-    }
-
-    @Bindable
-    fun getId(): String {
-        return dataVar.getId()
-    }
-
-    fun setName(name: String) {
-        this.dataVar.setName(name)
-    }
-
-    @Bindable
-    fun getName(): String {
-        return dataVar.getName()
-    }
-
-    fun setDate(date: String) {
-        this.dataVar.setDate(date)
-    }
-
-    @Bindable
-    fun getDate(): String {
-        return dataVar.getDate()
-    }
-
-    fun isValidDate(inDate: String): Boolean {
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy")
-        dateFormat.setLenient(false)
-        try {
-            dateFormat.parse(inDate.trim { it <= ' ' })
-        } catch (pe: ParseException) {
-            return false
-        }
-
-        return true
-    }
 }

@@ -1,13 +1,9 @@
 package ro.marc.chatapp.model
 
-data class RegisterModel(var mId: String, var mEmail: String, var mName: String, var mDate: String) {
-    fun getId(): String = mId
-    fun getEmail(): String = mEmail
-    fun getName(): String = mName
-    fun getDate(): String = mDate
-
-    fun setId(sId: String) {mId = sId}
-    fun setEmail(sEmail: String) {mEmail = sEmail}
-    fun setName(sName: String) {mName = sName}
-    fun setDate(sDate: String) {mDate = sDate}
-}
+data class RegisterModel(
+    var id: String = "",
+    var email: String = "",
+    var password: String = "",
+    var name: String = "",
+    var date: String = ""
+)

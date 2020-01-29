@@ -1,10 +1,13 @@
 <resources>
     <string name="app_name">ChatApp</string>
 
-    <string name="invalidDate">Data trebuie sa aiba formatul dd/mm/yyyy</string>
-    <string name="invalidName">Numele trebuie sa aiba minim 3 caractere</string>
-    <string name="invalidId">ID-ul e format doar din litere, cifre, ., _ si are 4-16 caractere</string>
-    <string name="invalidEmail">Email-ul e invalid</string>
+    <string name="ERRDate">Data trebuie sa aiba formatul dd/mm/yyyy</string>
+    <string name="ERRName">Numele trebuie sa aiba minim 3 caractere</string>
+    <string name="ERRID">ID-ul e format doar din litere, cifre, ., _ si are 4-16 caractere</string>
+    <string name="ERREmail">Email-ul e invalid</string>
+    <string name="ERRPassword">Parola trebuie sa fie de minim 4 caractere, sa contina cel putin o litera mare, mica si un numar</string>
+    <string name="ERRLogin">Email sau parola invalida</string>
+
 
     <string name="register">Inregistrare</string>
     <string name="login">Logare</string>

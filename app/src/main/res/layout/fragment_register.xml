@@ -46,7 +46,7 @@
                     android:inputType="textNoSuggestions"
                     android:hint="@string/id"
                     android:maxLength="16"
-                    android:text="@={registerViewModel.id}"/>
+                    android:text="@={registerViewModel.registerModelLiveData.id}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
                     android:hint="@string/email"
-                    android:text="@={registerViewModel.email}"/>
+                    android:text="@={registerViewModel.registerModelLiveData.email}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -71,7 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textNoSuggestions"
-                    android:text="@={registerViewModel.name}"
+                    android:text="@={registerViewModel.registerModelLiveData.name}"
                     android:hint="@string/name" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -84,6 +84,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
+                    android:text="@={registerViewModel.registerModelLiveData.password}"
                     android:hint="@string/password"
                     />
             </com.google.android.material.textfield.TextInputLayout>
@@ -97,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="date"
-                    android:text="@={registerViewModel.date}"
+                    android:text="@={registerViewModel.registerModelLiveData.date}"
                     android:hint="@string/birthday" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -106,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/errField"
                 android:textColor="@color/red"
-                android:text="@{registerViewModel.message}"/>
+                />
 
 
             <Button
