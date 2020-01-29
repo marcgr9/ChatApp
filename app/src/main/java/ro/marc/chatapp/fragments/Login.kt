@@ -16,7 +16,12 @@ import ro.marc.chatapp.databinding.FragmentRegisterBinding
 import ro.marc.chatapp.viewmodel.LoginViewModel
 import androidx.core.content.ContextCompat.startActivity
 import android.content.Intent
+import android.util.Log
 import android.widget.TextView
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import kotlinx.android.synthetic.main.fragment_login.errField
+import kotlinx.android.synthetic.main.fragment_register.*
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -33,43 +38,48 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class Login : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    val errorId = "ERRLogin"
+
+    lateinit var binding: FragmentLoginBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-
-        val binding: FragmentLoginBinding = FragmentLoginBinding.inflate(inflater, container, false)
-
-        binding.setLoginViewModel(LoginViewModel())
-        // binding.setVariable(BR.regData, data);
+        binding = FragmentLoginBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
 
         return binding.getRoot()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val noAccountView = view.findViewById(ro.marc.chatapp.R.id.noAccount) as TextView
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
-        noAccountView.setOnClickListener {
-            val navController = Navigation.findNavController(activity!!,
-                ro.marc.chatapp.R.id.navHostFragment
-            )
-            navController.navigate(ro.marc.chatapp.R.id.action_login_to_register)
-        }
+        val viewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
+
+        viewModel.hasError().observe(this, Observer {
+            if (it == true) errField.text = getString(resources.getIdentifier(errorId , "string", "ro.marc.chatapp"))
+            else errField.text = ""
+
+        })
+
+        viewModel.clicked.observe(this, Observer {
+            goToRegister()
+        })
+
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.loginViewModel = viewModel
+
+    }
+
+    fun goToRegister() {
+        val navController = Navigation.findNavController(activity!!,
+            ro.marc.chatapp.R.id.navHostFragment
+        )
+        navController.navigate(ro.marc.chatapp.R.id.action_login_to_register)
     }
 
 
@@ -106,25 +116,5 @@ class Login : Fragment() {
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment Register.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            Register().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
     }
 }

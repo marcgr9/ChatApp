@@ -1,24 +1,20 @@
 package ro.marc.chatapp.viewmodel
 
-import android.util.Log
 import android.util.Patterns
-import androidx.databinding.BaseObservable
-import androidx.databinding.Bindable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ro.marc.chatapp.BR
 import ro.marc.chatapp.model.RegisterModel
+import ro.marc.chatapp.utils.Utils
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
 class RegisterViewModel : ViewModel() {
+
     enum class Errors {
-        ERREmail, ERRID, ERRName, ERRDate
+        ERREmail, ERRID, ERRName, ERRDate, ERRPassword
     }
 
-    //Nu este necesar sa ai pentru fiecare field. Poti sa faci un singur obiect LiveData cu RegisterModel.
-    // Acest livedata il utilizezi atat in view cat si la validari
     val registerModelLiveData: LiveData<RegisterModel>
         get() = _registerModelLiveData
     private val _registerModelLiveData = MutableLiveData<RegisterModel>()
@@ -27,34 +23,28 @@ class RegisterViewModel : ViewModel() {
         _registerModelLiveData.value = RegisterModel()
     }
 
-    var email: MutableLiveData<String> = MutableLiveData()
-    var id: MutableLiveData<String> = MutableLiveData()
-    var name: MutableLiveData<String> = MutableLiveData()
-    var date: MutableLiveData<String> = MutableLiveData()
-
     var errs: MutableLiveData<ArrayList<Errors>> = MutableLiveData()
 
-    fun getErrors(): MutableLiveData<ArrayList<Errors>> {
-        println("getErrors, livedata size: " + errs.value?.size)
-        return errs
-    }
+    fun getErrors(): MutableLiveData<ArrayList<Errors>> = errs
 
     fun onRegisterClicked() {
-        println("onButtonnClicked")
-
         val registerModel = _registerModelLiveData.value!!
 
-        //var data = RegisterModel(id.value!!, email.value!!, name.value!!, date.value!!)
         var err: ArrayList<Errors> = ArrayList()
 
-        if (registerModel.email?.length!! < 3) {
-            //println("asf")
-            err.add(Errors.ERREmail)
-            println("errors size: " + err.size)
-        }
+        val email: String? = registerModel.email
+        val id: String? = registerModel.id
+        val name: String? = registerModel.name
+        val birthday: String? = registerModel.date
+        val passwd: String? = registerModel.password
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email!!).matches()) err.add(Errors.ERREmail)
+        if (id!!.length < 4 || id!!.length > 16 || !id!!.matches(Regex("[A-Za-z0-9._]+"))) err.add(Errors.ERRID)
+        if (name!!.length < 3) err.add(Errors.ERRName)
+        if (!Utils.isValidDate(birthday!!)) err.add(Errors.ERRDate)
+        if (passwd!!.length < 4 || !passwd!!.matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$"))) err.add(Errors.ERRPassword)
 
         errs.value = err
-        //println(errs.value!!.equals(err))
     }
 
 }

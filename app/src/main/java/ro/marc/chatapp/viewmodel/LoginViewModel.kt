@@ -1,65 +1,37 @@
 package ro.marc.chatapp.viewmodel
 
-import android.util.Patterns
-import androidx.databinding.BaseObservable
-import androidx.databinding.Bindable
-import androidx.navigation.Navigation
-import ro.marc.chatapp.BR
-import ro.marc.chatapp.R
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import ro.marc.chatapp.model.LoginModel
-import ro.marc.chatapp.model.RegisterModel
-import java.text.ParseException
-import java.text.SimpleDateFormat
 
-class LoginViewModel : BaseObservable() {
-    var dataVar: LoginModel = LoginModel("", "")
+class LoginViewModel : ViewModel() {
 
-    @Bindable
-    var message: String = ""
+    val loginModelLiveData: LiveData<LoginModel>
+        get() = _loginModelLiveData
 
-    fun setMsg(msg: String) {
-        this.message = msg;
-        notifyPropertyChanged(BR.message)
+    private val _loginModelLiveData = MutableLiveData<LoginModel>()
+
+    init {
+        _loginModelLiveData.value = LoginModel()
     }
 
-    fun getMsg(): String {
-        return this.message
-    }
+    var error: MutableLiveData<Boolean> = MutableLiveData()
+    var clicked: MutableLiveData<Boolean> = MutableLiveData()
+
+    fun hasError(): MutableLiveData<Boolean> = error
 
     fun onLoginClicked() {
-        setMsg(inputValid())
+        val registerModel = _loginModelLiveData.value!!
+
+        val email: String? = registerModel.email
+        val passwd: String? = registerModel.password
+
+        error.value = email!!.isBlank() || passwd!!.isBlank()
     }
 
-//    fun noAccount() {
-//
-//    }
-//    https://stackoverflow.com/questions/51451819/how-to-get-context-in-android-mvvm-viewmodel
-
-    private fun inputValid(): String {
-        var msg: String = "";
-        if (getEmail().length < 1 || Patterns.EMAIL_ADDRESS.matcher(getEmail()).matches()) msg += "Email-ul e invalid" + "\n"
-        if (getPass().equals("parola")) msg += "Parola invalida"
-
-        return msg
-
-    }
-
-    fun setEmail(email: String) {
-        this.dataVar.setEmail(email)
-    }
-
-    @Bindable
-    fun getEmail(): String {
-        return dataVar.getEmail()
-    }
-
-    fun setPass(pass: String) {
-        this.dataVar.setPass(pass)
-    }
-
-    @Bindable
-    fun getPass(): String {
-        return dataVar.getPass()
+    fun onNoAccountClicked() {
+        clicked.value = true
     }
 
 }
