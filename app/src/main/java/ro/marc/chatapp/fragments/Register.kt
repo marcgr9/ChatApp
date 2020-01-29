@@ -41,17 +41,30 @@ class Register : Fragment() {
         }
     }
 
+    //problema de aici este ca ai folosit 2 obiecte de tip RegisterViewModel
+    //in onCreateView initializezi prin constructor, iar in onViewCreated utilizezi ViewModelProviders
+    //ideea e ca la binding tu ai dat primul VM, si il observai pe al doilea, iar modificarile apar numai in primul
+    //Rezolvare: 1. binding variabila globala care se initializeaza in onCreateView
+    //           2. Codul din onViewCreated se muta in onActivityCreaded (metoda asta asgura faptul ca in activitatea din care face partea fragmentul a fost aplecat on create)
+    //           3. viewModel creat in onActivityCreaded este utilizat de binding, (1) si (2) se muta in onActivityCreaded si la (2) se utilizeaza modelul creat de ViewModelProviders
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        val binding: FragmentRegisterBinding = FragmentRegisterBinding.inflate(inflater, container, false)
+        val binding: FragmentRegisterBinding =
+            FragmentRegisterBinding.inflate(inflater, container, false)
 
         val registerViewModel = RegisterViewModel()
-        binding.registerViewModel = registerViewModel
+
+        binding.lifecycleOwner = viewLifecycleOwner  // (1)
+        binding.registerViewModel = registerViewModel // (2)
 
         binding.executePendingBindings()
+
+        registerViewModel.getErrors()
+            .observe(viewLifecycleOwner, Observer { Log.d("test", "onCreateView $it") })
 
         println("onCreate")
 
@@ -65,7 +78,7 @@ class Register : Fragment() {
         val viewModel = ViewModelProviders.of(this).get(RegisterViewModel::class.java)
 
         viewModel.getErrors().observe(this, Observer {
-            println("observed")
+            Log.d("test", "onViewCreated $it")
         })
     }
 

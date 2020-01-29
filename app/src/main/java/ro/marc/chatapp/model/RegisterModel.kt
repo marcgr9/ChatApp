@@ -1,13 +1,10 @@
 package ro.marc.chatapp.model
 
-data class RegisterModel(var mId: String, var mEmail: String, var mName: String, var mDate: String) {
-    fun getId(): String = mId
-    fun getEmail(): String = mEmail
-    fun getName(): String = mName
-    fun getDate(): String = mDate
-
-    fun setId(sId: String) {mId = sId}
-    fun setEmail(sEmail: String) {mEmail = sEmail}
-    fun setName(sName: String) {mName = sName}
-    fun setDate(sDate: String) {mDate = sDate}
-}
+//data class au fost construite pentru a mapa un model, iar una dintre caracteristicile lor este ca
+// simplifica codul deoarece au deja unele metode implementate (get/set pt parametri, toString, equals etc)
+data class RegisterModel(
+    var id: String? = null,
+    var email: String? = null,
+    var name: String? = null,
+    var date: String? = null
+)

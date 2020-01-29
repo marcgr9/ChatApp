@@ -17,6 +17,16 @@ class RegisterViewModel : ViewModel() {
         ERREmail, ERRID, ERRName, ERRDate
     }
 
+    //Nu este necesar sa ai pentru fiecare field. Poti sa faci un singur obiect LiveData cu RegisterModel.
+    // Acest livedata il utilizezi atat in view cat si la validari
+    val registerModelLiveData: LiveData<RegisterModel>
+        get() = _registerModelLiveData
+    private val _registerModelLiveData = MutableLiveData<RegisterModel>()
+
+    init {
+        _registerModelLiveData.value = RegisterModel()
+    }
+
     var email: MutableLiveData<String> = MutableLiveData()
     var id: MutableLiveData<String> = MutableLiveData()
     var name: MutableLiveData<String> = MutableLiveData()
@@ -32,10 +42,12 @@ class RegisterViewModel : ViewModel() {
     fun onRegisterClicked() {
         println("onButtonnClicked")
 
-        var data = RegisterModel(id.value!!, email.value!!, name.value!!, date.value!!)
+        val registerModel = _registerModelLiveData.value!!
+
+        //var data = RegisterModel(id.value!!, email.value!!, name.value!!, date.value!!)
         var err: ArrayList<Errors> = ArrayList()
 
-        if (data.getEmail().length < 3) {
+        if (registerModel.email?.length!! < 3) {
             //println("asf")
             err.add(Errors.ERREmail)
             println("errors size: " + err.size)

@@ -46,7 +46,7 @@
                     android:inputType="textNoSuggestions"
                     android:hint="@string/id"
                     android:maxLength="16"
-                    android:text="@={registerViewModel.id}"/>
+                    android:text="@={registerViewModel.registerModelLiveData.mId}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
