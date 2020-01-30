@@ -56,7 +56,7 @@ class Login : Fragment() {
     }
 
     fun goToRegister() {
-        //findNavController().navigate(ro.marc.chatapp.R.id.action_login_to_register)
-        Toast.makeText(requireActivity(), "toast", Toast.LENGTH_LONG).show()
+        findNavController().navigate(ro.marc.chatapp.R.id.action_login_to_register)
+        //Toast.makeText(requireActivity(), "toast", Toast.LENGTH_LONG).show()
     }
 }
