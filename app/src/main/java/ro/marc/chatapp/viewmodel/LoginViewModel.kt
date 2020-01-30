@@ -10,16 +10,19 @@ class LoginViewModel : ViewModel() {
     val loginModelLiveData: LiveData<LoginModel>
         get() = _loginModelLiveData
 
+    val error: LiveData<Boolean>
+        get() = _error
+
     private val _loginModelLiveData = MutableLiveData<LoginModel>()
+    private val _error = MutableLiveData<Boolean>()
 
     init {
         _loginModelLiveData.value = LoginModel()
+        _error.value = false
     }
 
-    var error: MutableLiveData<Boolean> = MutableLiveData()
-    var clicked: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun hasError(): MutableLiveData<Boolean> = error
+    var clicked: MutableLiveData<Boolean> = MutableLiveData()
 
     fun onLoginClicked() {
         val registerModel = _loginModelLiveData.value!!
@@ -27,15 +30,11 @@ class LoginViewModel : ViewModel() {
         val email: String? = registerModel.email
         val passwd: String? = registerModel.password
 
-        error.value = email!!.isBlank() || passwd!!.isBlank()
+        _error.value = email.isNullOrBlank() || passwd.isNullOrBlank()
     }
 
-    fun onNoAccountClicked() {
-        clicked.value = true
-    }
-
-    fun resetState() {
-        clicked = MutableLiveData()
+    fun onNoAccountClicked(clicked: Boolean) {
+        this.clicked.value = clicked
     }
 
 }

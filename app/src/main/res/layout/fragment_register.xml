@@ -98,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="date"
-                    android:text="@={registerViewModel.registerModelLiveData.date}"
+                    android:text="@={registerViewModel.registerModelLiveData.birthday}"
                     android:hint="@string/birthday" />
             </com.google.android.material.textfield.TextInputLayout>
 

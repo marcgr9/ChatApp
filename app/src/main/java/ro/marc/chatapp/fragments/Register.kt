@@ -12,6 +12,7 @@ import kotlinx.android.synthetic.main.fragment_register.*
 import ro.marc.chatapp.R
 import ro.marc.chatapp.viewmodel.RegisterViewModel
 import ro.marc.chatapp.databinding.FragmentRegisterBinding
+import ro.marc.chatapp.utils.Utils
 
 class Register : Fragment() {
 
@@ -31,23 +32,20 @@ class Register : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val viewModel = ViewModelProviders.of(this).get(RegisterViewModel::class.java)
+        val viewModel: RegisterViewModel = ViewModelProviders.of(this).get(RegisterViewModel::class.java)
 
-        viewModel.getErrors().observe(this, Observer {
-            Log.d("test", "onViewCreated $it")
-
-            var errors: String = ""
+        viewModel.errors.observe(this, Observer {
+            var errors = ""
 
             it.forEach { err ->
-
-                val stringId = when (err) {
-                    RegisterViewModel.Errors.ERREmail -> R.string.ERREmail
-                    RegisterViewModel.Errors.ERRID -> R.string.ERRID
-                    RegisterViewModel.Errors.ERRPassword -> R.string.ERRPassword
-                    RegisterViewModel.Errors.ERRDate -> R.string.ERRDate
-                    RegisterViewModel.Errors.ERRName -> R.string.ERRName
-
-
+                val stringId: Int = when (err) {
+                    Utils.CredentialErrors.ERREmail -> R.string.ERREmail
+                    Utils.CredentialErrors.ERRId -> R.string.ERRId
+                    Utils.CredentialErrors.ERRPassword -> R.string.ERRPassword
+                    Utils.CredentialErrors.ERRDateFormat -> R.string.ERRDateFormat
+                    Utils.CredentialErrors.ERRDateAge -> R.string.ERRDateAge
+                    Utils.CredentialErrors.ERRName -> R.string.ERRName
+                    else -> 0
                 }
 
                 errors += getString(stringId)
@@ -59,6 +57,7 @@ class Register : Fragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.registerViewModel = viewModel
-
     }
+
+
 }
