@@ -34,4 +34,8 @@ class LoginViewModel : ViewModel() {
         clicked.value = true
     }
 
+    fun resetState() {
+        clicked = MutableLiveData()
+    }
+
 }
