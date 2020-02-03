@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "339617348867",
+    "firebase_url": "https://chatapp-ccaad.firebaseio.com",
+    "project_id": "chatapp-ccaad",
+    "storage_bucket": "chatapp-ccaad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339617348867:android:c7a621986fd36fe3987d36",
+        "android_client_info": {
+          "package_name": "ro.marc.chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "339617348867-mjnvt46mfbl5htjdqegpqiuv3mm07qdb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ro.marc.chatapp",
+            "certificate_hash": "7cde84d81ec41a27fbd0c32005471baf46a50742"
+          }
+        },
+        {
+          "client_id": "339617348867-bodj19irmb1m3njjjliqj2q8tc0cg1tv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaFqHQ9JPY4D6vkLDNk4oHMfGp7icG3I8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "339617348867-bodj19irmb1m3njjjliqj2q8tc0cg1tv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
