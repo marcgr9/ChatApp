@@ -12,24 +12,26 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import android.content.Intent
-import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.android.synthetic.main.fragment_login.*
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.GoogleAuthProvider
 import ro.marc.chatapp.R
+import ro.marc.chatapp.viewmodel.AuthViewModel
+import ro.marc.chatapp.model.User
 
 
 class Login : Fragment() {
 
-    val RC_SIGN_IN = 123
+    private val RC_SIGN_IN = 123
 
     private lateinit var binding: FragmentLoginBinding
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var authViewModel: AuthViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,14 +62,12 @@ class Login : Fragment() {
             }
         })
 
-
-        loginBtn.setOnClickListener {  signIn() }
-
+        loginBtn.setOnClickListener { signIn() }
+        authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         initClient()
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.loginViewModel = viewModel
-
     }
 
     fun goToRegister() {
@@ -90,18 +90,42 @@ class Login : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == RC_SIGN_IN) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account: GoogleSignInAccount? = task.getResult(ApiException::class.java)
                 if (account != null) {
-                    println("succes")
+                    getGoogleAuthCredential(account)
                 }
             } catch (e: ApiException) {
-                println("login esuat: $e")
+                println("esuat: $e")
             }
         }
+    }
+
+    private fun getGoogleAuthCredential(googleSignInAccount: GoogleSignInAccount) {
+        val googleTokenId = googleSignInAccount.idToken
+        val googleAuthCredential = GoogleAuthProvider.getCredential(googleTokenId, null)
+        signInWithGoogleAuthCredential(googleAuthCredential)
+    }
+
+    private fun signInWithGoogleAuthCredential(googleAuthCredential: AuthCredential) {
+        authViewModel.signInWithGoogle(googleAuthCredential)
+        authViewModel.authenticatedUserLiveData?.observe(this, Observer { authenticatedUser ->
+            if (authenticatedUser.isNew) {
+                // redirect la un fragment nou pt datele suplimentare
+                createNewUser(authenticatedUser)
+            } else {
+                println("logat ca si ${authenticatedUser.name}")
+            }
+        })
+    }
+
+    private fun createNewUser(authenticatedUser: User) {
+        authViewModel.createUser(authenticatedUser)
+        authViewModel.createdUserLiveData?.observe(this, Observer { user ->
+            println("inregistrat ca si ${user.name}")
+        })
     }
 
 
