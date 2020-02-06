@@ -6,7 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
-import ro.marc.chatapp.model.User
+import ro.marc.chatapp.model.FirestoreUser
 import com.google.firebase.firestore.FirebaseFirestore
 import ro.marc.chatapp.model.RegisterModel
 
@@ -15,8 +15,8 @@ class AuthRepository {
     private val rootRef: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = rootRef.collection("users")
 
-    fun firebaseSignInWithGoogle(googleAuthCredential: AuthCredential): MutableLiveData<RegisterModel> {
-        val authenticatedUserMutableLiveData = MutableLiveData<RegisterModel>()
+    fun firebaseSignInWithGoogle(googleAuthCredential: AuthCredential): MutableLiveData<String> {
+        val authenticatedUserMutableLiveData = MutableLiveData<String>()
         firebaseAuth.signInWithCredential(googleAuthCredential).addOnCompleteListener { authTask ->
             if (authTask.isSuccessful) {
                 val isNewUser = authTask.result!!.additionalUserInfo!!.isNewUser
@@ -36,8 +36,8 @@ class AuthRepository {
         return authenticatedUserMutableLiveData
     }
 
-    fun createUserInFirestoreIfNotExists(authenticatedUser: RegisterModel): MutableLiveData<RegisterModel> {
-        val newUserMutableLiveData = MutableLiveData<RegisterModel>()
+    fun createUserInFirestoreIfNotExists(authenticatedUser: FirestoreUser): MutableLiveData<FirestoreUser> {
+        val newUserMutableLiveData = MutableLiveData<FirestoreUser>()
         val uidRef: DocumentReference = usersRef.document(authenticatedUser.uid)
         uidRef.get().addOnCompleteListener { uidTask ->
             if (uidTask.isSuccessful) {

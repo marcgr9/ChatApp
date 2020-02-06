@@ -8,12 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.firestore.v1.FirestoreGrpc
 import kotlinx.android.synthetic.main.fragment_register.*
 import ro.marc.chatapp.R
 import ro.marc.chatapp.viewmodel.RegisterViewModel
 import ro.marc.chatapp.databinding.FragmentRegisterBinding
+import ro.marc.chatapp.model.FirestoreUser
 import ro.marc.chatapp.model.RegisterModel
-import ro.marc.chatapp.model.User
 import ro.marc.chatapp.utils.Utils
 import ro.marc.chatapp.viewmodel.AuthViewModel
 
@@ -90,8 +91,10 @@ class Register : Fragment() {
     }
 
     private fun createUser(authenticatedUser: RegisterModel) {
+
+        val fsUser: FirestoreUser = FirestoreUser(authenticatedUser.uid, authenticatedUser.email, authenticatedUser.name, authenticatedUser.id, authenticatedUser.birthday)
         println("called createuser inside register.kt")
-        authViewModel.createUser(authenticatedUser)
+        authViewModel.createUser(fsUser)
         println("called createuser inside authviewmodel")
         authViewModel.createdUserLiveData?.observe(viewLifecycleOwner, Observer { user ->
             println("inregistrat ca si ${user.name}")

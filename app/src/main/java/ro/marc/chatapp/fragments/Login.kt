@@ -24,7 +24,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import ro.marc.chatapp.R
 import ro.marc.chatapp.model.RegisterModel
 import ro.marc.chatapp.viewmodel.AuthViewModel
-import ro.marc.chatapp.model.User
 
 
 class Login : Fragment() {
