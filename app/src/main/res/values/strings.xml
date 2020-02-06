@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">ChatApp</string>
+    <string name="NULL"> </string>
 
     <string name="ERRDateFormat">Data trebuie sa aiba formatul dd/mm/yyyy</string>
     <string name="ERRDateAge">Nu ai varsta necesara (14 ani)</string>

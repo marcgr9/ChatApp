@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import android.content.Intent
+import androidx.core.os.bundleOf
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.android.synthetic.main.fragment_login.*
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -21,6 +22,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import ro.marc.chatapp.R
+import ro.marc.chatapp.model.RegisterModel
 import ro.marc.chatapp.viewmodel.AuthViewModel
 import ro.marc.chatapp.model.User
 
@@ -110,21 +112,22 @@ class Login : Fragment() {
     }
 
     private fun signInWithGoogleAuthCredential(googleAuthCredential: AuthCredential) {
+        println("before signinw google")
         authViewModel.signInWithGoogle(googleAuthCredential)
+        println("after signinw google")
         authViewModel.authenticatedUserLiveData?.observe(this, Observer { authenticatedUser ->
+            println("start of authedUser observer")
             if (authenticatedUser.isNew) {
                 // redirect la un fragment nou pt datele suplimentare
-                createNewUser(authenticatedUser)
+
+                val bundle = bundleOf("email" to authenticatedUser.email, "name" to authenticatedUser.name, "uid" to authenticatedUser.uid)
+                findNavController().navigate(R.id.action_login_to_register, bundle)
+
+                //createNewUser(authenticatedUser)
             } else {
                 println("logat ca si ${authenticatedUser.name}")
             }
-        })
-    }
-
-    private fun createNewUser(authenticatedUser: User) {
-        authViewModel.createUser(authenticatedUser)
-        authViewModel.createdUserLiveData?.observe(this, Observer { user ->
-            println("inregistrat ca si ${user.name}")
+        println("end of authed user observer")
         })
     }
 

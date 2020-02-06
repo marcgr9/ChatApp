@@ -12,17 +12,18 @@ class RegisterViewModel : ViewModel() {
         get() = _registerModelLiveData
     private val _registerModelLiveData = MutableLiveData<RegisterModel>()
 
-    val errors: LiveData<ArrayList<CredentialErrors?>>
+    val errors: LiveData<ArrayList<CredentialErrors?>?>
         get() = _errors
 
     private val _errors = MutableLiveData<ArrayList<CredentialErrors?>>()
 
     init {
         _registerModelLiveData.value = RegisterModel()
-        _errors.value = ArrayList<CredentialErrors?>()
+        _errors.value = null
     }
 
     fun onRegisterClicked() {
+        println("clicked register button")
         val registerModel = _registerModelLiveData.value!!
 
         var err: ArrayList<CredentialErrors?> = ArrayList()
@@ -35,6 +36,8 @@ class RegisterViewModel : ViewModel() {
         validations.add(Utils.checkPassword(registerModel.password))
         validations.add(Utils.checkDate(registerModel.birthday))
 
+//        err.add(null) // ca sa nu intre in observer cand e initializat livedata-ul, doar la apasat de buton
+
         validations.forEach {
             if (it != null) {
                 err.add(it)
@@ -42,6 +45,17 @@ class RegisterViewModel : ViewModel() {
         }
 
         _errors.value = err
+    }
+
+    fun setData(data: RegisterModel) {
+        println("setData is called")
+        _registerModelLiveData.value = data
+    }
+
+    fun getData(): RegisterModel? {
+        println("getData is called")
+        println(registerModelLiveData.value?.id)
+        return registerModelLiveData.value
     }
 
 }
