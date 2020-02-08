@@ -6,7 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
-import ro.marc.chatapp.model.User
+import ro.marc.chatapp.model.FirestoreUser
 import com.google.firebase.firestore.FirebaseFirestore
 import ro.marc.chatapp.model.RegisterModel
 
@@ -14,6 +14,33 @@ class AuthRepository {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val rootRef: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = rootRef.collection("users")
+
+    fun signUpUser(email: String, password: String): MutableLiveData<RegisterModel> {
+        val signedUpUser = MutableLiveData<RegisterModel>()
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+            if (it.isSuccessful) {
+                val firebaseUser = firebaseAuth.currentUser
+                println("user auth creat cu uid ${firebaseUser!!.uid}")
+                signedUpUser.value = RegisterModel(firebaseUser!!.uid, "", email, password, "", "")
+            } else {
+                println("sign uo esuat cu eroarea ${it.exception!!.message}")
+            }
+        }
+        return signedUpUser
+    }
+
+    fun login(email: String, password: String): MutableLiveData<RegisterModel> {
+        val loggedUser = MutableLiveData<RegisterModel>()
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+            if (it.isSuccessful) {
+                println("user logat cu uid ${firebaseAuth.currentUser!!.uid}")
+                loggedUser.value = RegisterModel(firebaseAuth.currentUser!!.uid, "", email, password, "", "")
+            } else {
+                println("logare esuata cu ${it.exception!!.message}")
+            }
+        }
+        return loggedUser
+    }
 
     fun firebaseSignInWithGoogle(googleAuthCredential: AuthCredential): MutableLiveData<RegisterModel> {
         val authenticatedUserMutableLiveData = MutableLiveData<RegisterModel>()
@@ -36,14 +63,14 @@ class AuthRepository {
         return authenticatedUserMutableLiveData
     }
 
-    fun createUserInFirestoreIfNotExists(authenticatedUser: RegisterModel): MutableLiveData<RegisterModel> {
-        val newUserMutableLiveData = MutableLiveData<RegisterModel>()
+    fun createUserInFirestoreIfNotExists(authenticatedUser: FirestoreUser): MutableLiveData<FirestoreUser> {
+        val newUserMutableLiveData = MutableLiveData<FirestoreUser>()
         val uidRef: DocumentReference = usersRef.document(authenticatedUser.uid)
         uidRef.get().addOnCompleteListener { uidTask ->
             if (uidTask.isSuccessful) {
                 val document: DocumentSnapshot? = uidTask.result
                 if (!document!!.exists()) {
-                    println("test de id " + authenticatedUser.id)
+                    println("document nu exista")
                     uidRef.set(authenticatedUser).addOnCompleteListener { userCreationTask ->
                         if (userCreationTask.isSuccessful) {
                             authenticatedUser.isCreated = true
@@ -61,11 +88,4 @@ class AuthRepository {
         }
         return newUserMutableLiveData
     }
-
-    fun registerUser(email: String, password: String) {
-        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
-            println("inregistrat")
-        }
-    }
-
 }

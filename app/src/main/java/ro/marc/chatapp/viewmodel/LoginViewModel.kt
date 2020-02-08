@@ -6,35 +6,40 @@ import androidx.lifecycle.ViewModel
 import ro.marc.chatapp.model.LoginModel
 
 class LoginViewModel : ViewModel() {
-
-    val loginModelLiveData: LiveData<LoginModel>
-        get() = _loginModelLiveData
+    var loginModel = LoginModel()
 
     val error: LiveData<Boolean>
         get() = _error
 
-    private val _loginModelLiveData = MutableLiveData<LoginModel>()
+    val clicked: LiveData<Boolean>
+        get() = _clicked
+
+    val isSuccessful: LiveData<LoginModel>
+        get() = _isSuccessful
+
     private val _error = MutableLiveData<Boolean>()
+    private val _isSuccessful = MutableLiveData<LoginModel>()
+    private val _clicked = MutableLiveData<Boolean>()
 
     init {
-        _loginModelLiveData.value = LoginModel()
         _error.value = false
     }
 
-
-    var clicked: MutableLiveData<Boolean> = MutableLiveData()
-
     fun onLoginClicked() {
-        val registerModel = _loginModelLiveData.value!!
+        val registerModel: LoginModel = loginModel
 
         val email: String? = registerModel.email
-        val passwd: String? = registerModel.password
+        val password: String? = registerModel.password
 
-        _error.value = email.isNullOrBlank() || passwd.isNullOrBlank()
+        _error.value = email.isNullOrBlank() || password.isNullOrBlank()
+
+        if (email.isNullOrBlank() || password.isNullOrBlank()) {
+            _error.value = true
+        } else _isSuccessful.value = loginModel
     }
 
     fun onNoAccountClicked(clicked: Boolean) {
-        this.clicked.value = clicked
+        _clicked.value = clicked
     }
 
 }

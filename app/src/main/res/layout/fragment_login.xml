@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:gravity="center_horizontal"
             android:paddingTop="56dp"
             android:paddingLeft="24dp"
             android:paddingRight="24dp" >
@@ -41,7 +42,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
                     android:hint="@string/email"
-                    android:text="@={loginViewModel.loginModelLiveData.email}"/>
+                    android:text="@={loginViewModel.loginModel.email}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -54,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
                     android:hint="@string/password"
-                    android:text="@={loginViewModel.loginModelLiveData.password}"/>
+                    android:text="@={loginViewModel.loginModel.password}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -70,6 +71,20 @@
                 android:id="@+id/loginBtn"
                 android:text="@string/login"
                 android:onClick="@{() -> loginViewModel.onLoginClicked()}"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.gms.common.SignInButton
+                    android:id="@+id/google_login_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"

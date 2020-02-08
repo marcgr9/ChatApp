@@ -8,24 +8,22 @@ import ro.marc.chatapp.utils.Utils
 import ro.marc.chatapp.utils.Utils.CredentialErrors
 
 class RegisterViewModel : ViewModel() {
-    val registerModelLiveData: LiveData<RegisterModel>
-        get() = _registerModelLiveData
-    private val _registerModelLiveData = MutableLiveData<RegisterModel>()
+    var registerModel =  RegisterModel()
 
     val errors: LiveData<ArrayList<CredentialErrors?>?>
         get() = _errors
 
+    val isSuccessful: LiveData<RegisterModel>
+        get() = _isSuccessful
+
     private val _errors = MutableLiveData<ArrayList<CredentialErrors?>>()
+    private val _isSuccessful = MutableLiveData<RegisterModel>()
 
     init {
-        _registerModelLiveData.value = RegisterModel()
         _errors.value = null
     }
 
     fun onRegisterClicked() {
-        println("clicked register button")
-        val registerModel = _registerModelLiveData.value!!
-
         var err: ArrayList<CredentialErrors?> = ArrayList()
 
         var validations = ArrayList<CredentialErrors?>()
@@ -36,26 +34,20 @@ class RegisterViewModel : ViewModel() {
         validations.add(Utils.checkPassword(registerModel.password))
         validations.add(Utils.checkDate(registerModel.birthday))
 
-//        err.add(null) // ca sa nu intre in observer cand e initializat livedata-ul, doar la apasat de buton
-
         validations.forEach {
             if (it != null) {
                 err.add(it)
             }
         }
 
-        _errors.value = err
+        if (err.isEmpty()) {
+            _isSuccessful.value = registerModel
+        } else {
+            _errors.value = err
+        }
     }
 
     fun setData(data: RegisterModel) {
-        println("setData is called")
-        _registerModelLiveData.value = data
+        registerModel = data
     }
-
-    fun getData(): RegisterModel? {
-        println("getData is called")
-        println(registerModelLiveData.value?.id)
-        return registerModelLiveData.value
-    }
-
 }

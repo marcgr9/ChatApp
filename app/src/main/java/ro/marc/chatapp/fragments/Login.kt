@@ -22,9 +22,9 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import ro.marc.chatapp.R
+import ro.marc.chatapp.model.LoginModel
 import ro.marc.chatapp.model.RegisterModel
 import ro.marc.chatapp.viewmodel.AuthViewModel
-import ro.marc.chatapp.model.User
 
 
 class Login : Fragment() {
@@ -64,12 +64,23 @@ class Login : Fragment() {
             }
         })
 
-        loginBtn.setOnClickListener { signIn() }
+        viewModel.isSuccessful.observe(viewLifecycleOwner, Observer {
+            loginUser(it)
+        })
+
+        google_login_button.setOnClickListener { signIn() }
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         initClient()
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.loginViewModel = viewModel
+    }
+
+    private fun loginUser(data: LoginModel) {
+        authViewModel.loginUser(data.email!!, data.password!!)
+        authViewModel.loggedUser?.observe(viewLifecycleOwner, Observer {
+            println("user logat cu uid ${it.uid}")
+        })
     }
 
     fun goToRegister() {
@@ -112,22 +123,14 @@ class Login : Fragment() {
     }
 
     private fun signInWithGoogleAuthCredential(googleAuthCredential: AuthCredential) {
-        println("before signinw google")
         authViewModel.signInWithGoogle(googleAuthCredential)
-        println("after signinw google")
         authViewModel.authenticatedUserLiveData?.observe(this, Observer { authenticatedUser ->
-            println("start of authedUser observer")
             if (authenticatedUser.isNew) {
-                // redirect la un fragment nou pt datele suplimentare
-
                 val bundle = bundleOf("email" to authenticatedUser.email, "name" to authenticatedUser.name, "uid" to authenticatedUser.uid)
                 findNavController().navigate(R.id.action_login_to_register, bundle)
-
-                //createNewUser(authenticatedUser)
             } else {
                 println("logat ca si ${authenticatedUser.name}")
             }
-        println("end of authed user observer")
         })
     }
 
