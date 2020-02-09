@@ -9,30 +9,29 @@ import ro.marc.chatapp.utils.AuthRepository
 
 class AuthViewModel: ViewModel() {
     private val authRepository: AuthRepository = AuthRepository()
-    var authenticatedUserLiveData: LiveData<RegisterModel>? = null
 
-    var createdUserLiveData: LiveData<FirestoreUser>? = null
+    var signedInWithGoogleUser: LiveData<RegisterModel>? = null
+    fun signInWithGoogle(googleAuthCredential: AuthCredential) {
+        signedInWithGoogleUser = authRepository.firebaseSignInWithGoogle(googleAuthCredential)
+    }
+
+    var createdFirestoreUser: LiveData<FirestoreUser>? = null
+    fun createUserInFirestore(authenticatedUser: FirestoreUser) {
+        createdFirestoreUser = authRepository.createUserInFirestoreIfNotExists(authenticatedUser)
+    }
 
     var signedUpUser: LiveData<RegisterModel>? = null
-
-    var loggedUser: LiveData<RegisterModel>? = null
-
-    fun signInWithGoogle(googleAuthCredential: AuthCredential) {
-        authenticatedUserLiveData = authRepository.firebaseSignInWithGoogle(googleAuthCredential)
-    }
-
-    fun createUser(authenticatedUser: FirestoreUser) {
-        println("create user")
-        createdUserLiveData = authRepository.createUserInFirestoreIfNotExists(authenticatedUser)
-    }
-
     fun signUpUser(email: String, password: String) {
-        println("sign uo cu $email si $password")
         signedUpUser = authRepository.signUpUser(email, password);
     }
 
+    var loggedUser: LiveData<RegisterModel>? = null
     fun loginUser(email: String, password: String) {
-        println("login cu $email")
         loggedUser = authRepository.login(email, password)
+    }
+
+    var loggedUserUid: LiveData<String?>? = null
+    fun checkIfUserIsLoggedIn() {
+        loggedUserUid = authRepository.getLoggedUserUid()
     }
 }

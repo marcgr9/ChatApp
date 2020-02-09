@@ -1,5 +1,6 @@
 package ro.marc.chatapp.utils
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -15,15 +16,22 @@ class AuthRepository {
     private val rootRef: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = rootRef.collection("users")
 
+    val TAG = "ChatApp AuthRepository"
+
+    fun getLoggedUserUid(): MutableLiveData<String?> {
+        val isUserLoggedIn = MutableLiveData<String?>()
+        isUserLoggedIn.value = firebaseAuth.currentUser?.uid
+        return isUserLoggedIn
+    }
+
     fun signUpUser(email: String, password: String): MutableLiveData<RegisterModel> {
         val signedUpUser = MutableLiveData<RegisterModel>()
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
             if (it.isSuccessful) {
                 val firebaseUser = firebaseAuth.currentUser
-                println("user auth creat cu uid ${firebaseUser!!.uid}")
                 signedUpUser.value = RegisterModel(firebaseUser!!.uid, "", email, password, "", "")
             } else {
-                println("sign uo esuat cu eroarea ${it.exception!!.message}")
+                Log.d(TAG, "sign up cu email & parola esuat: ${it.exception!!.message}")
             }
         }
         return signedUpUser

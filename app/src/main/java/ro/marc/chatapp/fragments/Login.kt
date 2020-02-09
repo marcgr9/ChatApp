@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import android.content.Intent
+import android.util.Log
 import androidx.core.os.bundleOf
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -30,6 +31,7 @@ import ro.marc.chatapp.viewmodel.AuthViewModel
 class Login : Fragment() {
 
     private val RC_SIGN_IN = 123
+    private val TAG = "ChatApp Login"
 
     private lateinit var binding: FragmentLoginBinding
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -68,7 +70,7 @@ class Login : Fragment() {
             loginUser(it)
         })
 
-        google_login_button.setOnClickListener { signIn() }
+        google_login_button.setOnClickListener { signInWithGoogle() }
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         initClient()
 
@@ -79,12 +81,13 @@ class Login : Fragment() {
     private fun loginUser(data: LoginModel) {
         authViewModel.loginUser(data.email!!, data.password!!)
         authViewModel.loggedUser?.observe(viewLifecycleOwner, Observer {
-            println("user logat cu uid ${it.uid}")
+            Log.d(TAG, "user logat cu email & parola: ${it.uid}")
+            findNavController().navigate(R.id.login_to_profile)
         })
     }
 
     fun goToRegister() {
-        findNavController().navigate(R.id.action_login_to_register)
+        findNavController().navigate(R.id.login_to_register)
     }
 
     private fun initClient() {
@@ -96,7 +99,7 @@ class Login : Fragment() {
         googleSignInClient = GoogleSignIn.getClient(activity!!, googleSignInOptions)
     }
 
-    private fun signIn() {
+    private fun signInWithGoogle() {
         val signInIntent: Intent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
@@ -111,7 +114,7 @@ class Login : Fragment() {
                     getGoogleAuthCredential(account)
                 }
             } catch (e: ApiException) {
-                println("esuat: $e")
+                Log.d(TAG, "login cu google esuat: $e")
             }
         }
     }
@@ -124,15 +127,15 @@ class Login : Fragment() {
 
     private fun signInWithGoogleAuthCredential(googleAuthCredential: AuthCredential) {
         authViewModel.signInWithGoogle(googleAuthCredential)
-        authViewModel.authenticatedUserLiveData?.observe(this, Observer { authenticatedUser ->
-            if (authenticatedUser.isNew) {
-                val bundle = bundleOf("email" to authenticatedUser.email, "name" to authenticatedUser.name, "uid" to authenticatedUser.uid)
-                findNavController().navigate(R.id.action_login_to_register, bundle)
+        authViewModel.signedInWithGoogleUser?.observe(this, Observer {
+            if (it.isNew) {
+                Log.d(TAG, "user inregistrat cu google: ${it.uid}")
+                val bundle = bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
+                findNavController().navigate(R.id.login_to_register, bundle)
             } else {
-                println("logat ca si ${authenticatedUser.name}")
+                Log.d(TAG, "logat cu google: ${it.uid}")
+                findNavController().navigate(R.id.login_to_profile)
             }
         })
     }
-
-
 }

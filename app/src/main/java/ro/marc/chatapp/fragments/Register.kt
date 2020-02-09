@@ -1,12 +1,14 @@
 package ro.marc.chatapp.fragments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.fragment_register.*
 import ro.marc.chatapp.R
 import ro.marc.chatapp.viewmodel.RegisterViewModel
@@ -18,6 +20,8 @@ import ro.marc.chatapp.viewmodel.AuthViewModel
 import ro.marc.chatapp.viewmodel.factory.RegisterViewModelFactory
 
 class Register : Fragment() {
+
+    val TAG = "ChatApp Register"
 
     lateinit var binding: FragmentRegisterBinding
     lateinit var authViewModel: AuthViewModel
@@ -91,7 +95,6 @@ class Register : Fragment() {
     fun register(data: RegisterModel) {
         if (userAuthIsCreated()) createFirestoreUser(data)
         else {
-            println("start creare auth")
             createAuthUser(data)
         }
     }
@@ -104,18 +107,19 @@ class Register : Fragment() {
     private fun createAuthUser(data: RegisterModel) {
         authViewModel.signUpUser(data.email!!, data.password!!)
         authViewModel.signedUpUser?.observe(viewLifecycleOwner, Observer {
-            println("user inregistrat")
+            Log.d(TAG, "user inregistrat fara firestore: ${it.uid}")
             data.uid = it.uid
             createFirestoreUser(data)
         })
     }
 
-    private fun createFirestoreUser(authenticatedUser: RegisterModel) {
+    private fun createFirestoreUser(user: RegisterModel) {
         // convert din model cu toate datele in doar cele necesare
-        val fsUser = FirestoreUser(authenticatedUser.uid, authenticatedUser.email, authenticatedUser.name, authenticatedUser.id, authenticatedUser.birthday)
-        authViewModel.createUser(fsUser)
-        authViewModel.createdUserLiveData?.observe(viewLifecycleOwner, Observer { user ->
-            println("creat user-ul ${user.uid} in firestore (${user.name})")
+        val fsUser = FirestoreUser(user.uid, user.email, user.name, user.id, user.birthday)
+        authViewModel.createUserInFirestore(fsUser)
+        authViewModel.createdFirestoreUser?.observe(viewLifecycleOwner, Observer {
+            Log.d(TAG, "creat user in firestore: ${it.uid}")
+            findNavController().navigate(R.id.register_to_profile)
         })
     }
 
