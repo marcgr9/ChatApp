@@ -36,7 +36,7 @@ class AuthRepository {
                 println("user logat cu uid ${firebaseAuth.currentUser!!.uid}")
                 loggedUser.value = RegisterModel(firebaseAuth.currentUser!!.uid, "", email, password, "", "")
             } else {
-                println("logare esuata cu ${it.exception!!.message}")
+                println("logare esuata cu ${it.exception!!}")
             }
         }
         return loggedUser

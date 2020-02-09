@@ -15,6 +15,7 @@ import ro.marc.chatapp.model.FirestoreUser
 import ro.marc.chatapp.model.RegisterModel
 import ro.marc.chatapp.utils.Utils
 import ro.marc.chatapp.viewmodel.AuthViewModel
+import ro.marc.chatapp.viewmodel.factory.RegisterViewModelFactory
 
 class Register : Fragment() {
 
@@ -43,9 +44,13 @@ class Register : Fragment() {
         nameFromLogin = arguments?.getString("name")
         uidFromLogin = arguments?.getString("uid")
 
-        val viewModel: RegisterViewModel = ViewModelProviders.of(this).get(RegisterViewModel::class.java)
+        val factory = RegisterViewModelFactory(if (userAuthIsCreated()) 1 else 0)
 
-        if (userAuthIsCreated()) viewModel.setData(RegisterModel(uidFromLogin!!, "", emailFromLogin, "", nameFromLogin, ""))
+        val viewModel: RegisterViewModel = ViewModelProviders.of(this, factory).get(RegisterViewModel::class.java)
+
+        if (userAuthIsCreated()) {
+            viewModel.setData(RegisterModel(uidFromLogin!!, "", emailFromLogin, "", nameFromLogin, ""))
+        }
 
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
 
@@ -76,15 +81,19 @@ class Register : Fragment() {
 
         viewModel.isSuccessful.observe(viewLifecycleOwner, Observer {
             errField.text = ""
-            if (userAuthIsCreated()) createFirestoreUser(it)
-            else {
-                println("start creare auth")
-                createAuthUser(it)
-            }
+            register(it)
         })
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.registerViewModel = viewModel
+    }
+
+    fun register(data: RegisterModel) {
+        if (userAuthIsCreated()) createFirestoreUser(data)
+        else {
+            println("start creare auth")
+            createAuthUser(data)
+        }
     }
 
     private fun userAuthIsCreated(): Boolean {

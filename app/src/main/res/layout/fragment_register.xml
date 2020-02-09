@@ -53,7 +53,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                android:visibility="@{registerViewModel.visibility}">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -79,7 +80,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                android:visibility="@{registerViewModel.visibility}">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/pass"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
