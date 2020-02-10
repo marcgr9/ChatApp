@@ -2,7 +2,9 @@ package ro.marc.chatapp.utils
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.facebook.AccessToken
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
@@ -65,7 +67,7 @@ class AuthRepository {
                     authenticatedUserMutableLiveData.value = user
                 }
             } else {
-                println(authTask.exception!!.message)
+                Log.d(TAG, "eroare la signin cu google: ${authTask.exception!!.message!!}")
             }
         }
         return authenticatedUserMutableLiveData
@@ -78,7 +80,6 @@ class AuthRepository {
             if (uidTask.isSuccessful) {
                 val document: DocumentSnapshot? = uidTask.result
                 if (!document!!.exists()) {
-                    println("document nu exista")
                     uidRef.set(authenticatedUser).addOnCompleteListener { userCreationTask ->
                         if (userCreationTask.isSuccessful) {
                             authenticatedUser.isCreated = true
@@ -91,9 +92,23 @@ class AuthRepository {
                     newUserMutableLiveData.value = authenticatedUser
                 }
             } else {
-                println(uidTask.exception!!.message)
+                Log.d(TAG, "eroare la creare in firestore ${uidTask.exception!!.message!!}")
             }
         }
         return newUserMutableLiveData
+    }
+
+    fun handleFacebookAccessToken(token: AccessToken): MutableLiveData<RegisterModel> {
+        val user = MutableLiveData<RegisterModel>()
+
+        val credential: AuthCredential = FacebookAuthProvider.getCredential(token.token)
+        firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                user.value = RegisterModel(firebaseAuth.currentUser!!.uid, "", firebaseAuth.currentUser!!.email, "", firebaseAuth.currentUser!!.displayName, "")
+            } else {
+                Log.w(TAG, "signin cu facebook esuat: ${task.exception}")
+            }
+        }
+        return user
     }
 }

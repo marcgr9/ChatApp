@@ -3,6 +3,7 @@ package ro.marc.chatapp.viewmodel
 import com.google.firebase.auth.AuthCredential
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.facebook.AccessToken
 import ro.marc.chatapp.model.FirestoreUser
 import ro.marc.chatapp.model.RegisterModel
 import ro.marc.chatapp.utils.AuthRepository
@@ -33,5 +34,10 @@ class AuthViewModel: ViewModel() {
     var loggedUserUid: LiveData<String?>? = null
     fun checkIfUserIsLoggedIn() {
         loggedUserUid = authRepository.getLoggedUserUid()
+    }
+
+    var signedInWithFacebookUser: LiveData<RegisterModel>? = null
+    fun handleFacebook(token: AccessToken) {
+        signedInWithFacebookUser = authRepository.handleFacebookAccessToken(token)
     }
 }
