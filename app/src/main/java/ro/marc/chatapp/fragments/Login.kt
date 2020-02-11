@@ -97,6 +97,13 @@ class Login : Fragment() {
                 authViewModel.handleFacebook(loginResult.accessToken)
                 authViewModel.signedInWithFacebookUser?.observe(viewLifecycleOwner, Observer {
                     Log.d(TAG,"logat cu facebook in firebase: ${it.uid}")
+                    if (it.isNew) {
+                        val bundle =
+                            bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
+                        findNavController().navigate(R.id.login_to_register, bundle)
+                    } else {
+                        findNavController().navigate(R.id.login_to_profile)
+                    }
                 })
             }
 

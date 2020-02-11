@@ -82,7 +82,6 @@ class AuthRepository {
                 if (!document!!.exists()) {
                     uidRef.set(authenticatedUser).addOnCompleteListener { userCreationTask ->
                         if (userCreationTask.isSuccessful) {
-                            authenticatedUser.isCreated = true
                             newUserMutableLiveData.value = authenticatedUser
                         } else {
                             println(userCreationTask.exception!!.message)
@@ -104,7 +103,9 @@ class AuthRepository {
         val credential: AuthCredential = FacebookAuthProvider.getCredential(token.token)
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                user.value = RegisterModel(firebaseAuth.currentUser!!.uid, "", firebaseAuth.currentUser!!.email, "", firebaseAuth.currentUser!!.displayName, "")
+                var data = RegisterModel(firebaseAuth.currentUser!!.uid, "", firebaseAuth.currentUser!!.email, "", firebaseAuth.currentUser!!.displayName, "")
+                data.isNew = task.result!!.additionalUserInfo!!.isNewUser
+                user.value = data
             } else {
                 Log.w(TAG, "signin cu facebook esuat: ${task.exception}")
             }

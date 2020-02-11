@@ -11,9 +11,5 @@ data class RegisterModel(
     var birthday: String? = null
 ) {
     @get:Exclude
-    var isAuthenticated: Boolean = false
-    @get:Exclude
     var isNew: Boolean = false
-    @get:Exclude
-    var isCreated: Boolean = false
 }
