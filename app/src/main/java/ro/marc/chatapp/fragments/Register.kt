@@ -107,9 +107,11 @@ class Register : Fragment() {
     private fun createAuthUser(data: RegisterModel) {
         authViewModel.signUpUser(data.email!!, data.password!!)
         authViewModel.signedUpUser?.observe(viewLifecycleOwner, Observer {
-            Log.d(TAG, "user inregistrat fara firestore: ${it.uid}")
-            data.uid = it.uid
-            createFirestoreUser(data)
+            if (it.error == null) {
+                Log.d(TAG, "user inregistrat fara firestore: ${it.uid}")
+                data.uid = it.uid!!
+                createFirestoreUser(data)
+            } else errField.text = it.error
         })
     }
 
@@ -118,8 +120,10 @@ class Register : Fragment() {
         val fsUser = FirestoreUser(user.uid, user.email, user.name, user.id, user.birthday)
         authViewModel.createUserInFirestore(fsUser)
         authViewModel.createdFirestoreUser?.observe(viewLifecycleOwner, Observer {
-            Log.d(TAG, "creat user in firestore: ${it.uid}")
-            findNavController().navigate(R.id.register_to_profile)
+            if (it.error == null) {
+                Log.d(TAG, "creat user in firestore: ${it.uid}")
+                findNavController().navigate(R.id.register_to_profile)
+            } else errField.text = it.error
         })
     }
 

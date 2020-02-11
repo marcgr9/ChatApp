@@ -96,14 +96,17 @@ class Login : Fragment() {
             override fun onSuccess(loginResult: LoginResult) {
                 authViewModel.handleFacebook(loginResult.accessToken)
                 authViewModel.signedInWithFacebookUser?.observe(viewLifecycleOwner, Observer {
-                    Log.d(TAG,"logat cu facebook in firebase: ${it.uid}")
-                    if (it.isNew) {
-                        val bundle =
-                            bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
-                        findNavController().navigate(R.id.login_to_register, bundle)
-                    } else {
-                        findNavController().navigate(R.id.login_to_profile)
-                    }
+                    ///TODO - logout from facebook in case of error
+                    if (it.error == null) {
+                        Log.d(TAG, "logat cu facebook in firebase: ${it.uid}")
+                        if (it.isNew) {
+                            val bundle =
+                                bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
+                            findNavController().navigate(R.id.login_to_register, bundle)
+                        } else {
+                            findNavController().navigate(R.id.login_to_profile)
+                        }
+                    } else errField.text = it.error
                 })
             }
 
@@ -152,6 +155,7 @@ class Login : Fragment() {
                 }
             } catch (e: ApiException) {
                 Log.d(TAG, "login cu google esuat: $e")
+                errField.text = e.message
             }
         } else {
             Log.d(TAG, "intrat pe fb onActivityResult: $resultCode")
@@ -169,14 +173,16 @@ class Login : Fragment() {
     private fun signInWithGoogleAuthCredential(googleAuthCredential: AuthCredential) {
         authViewModel.signInWithGoogle(googleAuthCredential)
         authViewModel.signedInWithGoogleUser?.observe(this, Observer {
-            if (it.isNew) {
-                Log.d(TAG, "user inregistrat cu google: ${it.uid}")
-                val bundle = bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
-                findNavController().navigate(R.id.login_to_register, bundle)
-            } else {
-                Log.d(TAG, "logat cu google: ${it.uid}")
-                findNavController().navigate(R.id.login_to_profile)
-            }
+            if (it.error == null) {
+                if (it.isNew) {
+                    Log.d(TAG, "user inregistrat cu google: ${it.uid}")
+                    val bundle = bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
+                    findNavController().navigate(R.id.login_to_register, bundle)
+                } else {
+                    Log.d(TAG, "logat cu google: ${it.uid}")
+                    findNavController().navigate(R.id.login_to_profile)
+                }
+            } else errField.text = it.error
         })
     }
 }
