@@ -7,7 +7,7 @@
     <string name="ERRName">Numele trebuie sa aiba minim 3 caractere</string>
     <string name="ERRId">ID–ul e format doar din litere, cifre, ., _ si are 4–16 caractere</string>
     <string name="ERREmail">Email-ul e invalid</string>
-    <string name="ERRPassword">Parola trebuie sa fie de minim 4 caractere, sa contina cel putin o litera mare, mica si un numar</string>
+    <string name="ERRPassword">Parola trebuie sa fie de minim 6 caractere, sa contina cel putin o litera mare, mica si un numar</string>
     <string name="ERRLogin">Email sau parola invalida</string>
     <string name="general_error">A aparut o eroare.</string>
 

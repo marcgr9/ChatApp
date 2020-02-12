@@ -133,8 +133,12 @@ class Login : Fragment() {
     private fun loginUser(data: LoginModel) {
         authViewModel.loginUser(data.email!!, data.password!!)
         authViewModel.loggedUser?.observe(viewLifecycleOwner, Observer {
-            Log.d(TAG, "user logat cu email & parola: ${it.uid}")
-            findNavController().navigate(R.id.login_to_profile)
+            if (it.error == null) {
+                Log.d(TAG, "user logat cu email & parola: ${it.uid}")
+                findNavController().navigate(R.id.login_to_profile)
+            } else {
+                errField.text = it.error
+            }
         })
     }
 

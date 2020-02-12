@@ -48,6 +48,8 @@ class Register : Fragment() {
         nameFromLogin = arguments?.getString("name")
         uidFromLogin = arguments?.getString("uid")
 
+        println("useraurth: ${userAuthIsCreated()}")
+
         val factory = RegisterViewModelFactory(if (userAuthIsCreated()) 1 else 0)
 
         val viewModel: RegisterViewModel = ViewModelProviders.of(this, factory).get(RegisterViewModel::class.java)
