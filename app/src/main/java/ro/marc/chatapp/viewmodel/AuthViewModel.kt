@@ -47,4 +47,9 @@ class AuthViewModel: ViewModel() {
     fun logOut(activity: Activity) {
         loggedOut = authRepository.logOut(activity)
     }
+
+    var fetchedUser: LiveData<String>? = null
+    fun getUser() {
+        fetchedUser = authRepository.getUser()
+    }
 }

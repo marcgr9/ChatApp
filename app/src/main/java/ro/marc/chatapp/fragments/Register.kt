@@ -21,14 +21,14 @@ import ro.marc.chatapp.viewmodel.factory.RegisterViewModelFactory
 
 class Register : Fragment() {
 
-    val TAG = "ChatApp Register"
+    private val TAG = "ChatApp Register"
 
-    lateinit var binding: FragmentRegisterBinding
-    lateinit var authViewModel: AuthViewModel
+    private lateinit var binding: FragmentRegisterBinding
+    private lateinit var authViewModel: AuthViewModel
 
-    var emailFromLogin: String? = null
-    var nameFromLogin: String? = null
-    var uidFromLogin: String? = null
+    private var emailFromLogin: String? = null
+    private var nameFromLogin: String? = null
+    private var uidFromLogin: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,8 +47,6 @@ class Register : Fragment() {
         emailFromLogin = arguments?.getString("email")
         nameFromLogin = arguments?.getString("name")
         uidFromLogin = arguments?.getString("uid")
-
-        println("useraurth: ${userAuthIsCreated()}")
 
         val factory = RegisterViewModelFactory(if (userAuthIsCreated()) 1 else 0)
 

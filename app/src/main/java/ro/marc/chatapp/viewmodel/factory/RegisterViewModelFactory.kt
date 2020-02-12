@@ -15,4 +15,4 @@ class RegisterViewModelFactory(
 
 // mode:
 // 0 - register simplu
-// 1 - register cu google
+// 1 - register cu serviciu

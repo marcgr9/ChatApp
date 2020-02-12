@@ -17,22 +17,24 @@ import ro.marc.chatapp.viewmodel.AuthViewModel
 
 class Profile : Fragment() {
 
-    val TAG = "ChatApp Profile"
+    private val TAG = "ChatApp Profile"
+    private lateinit var authViewModel: AuthViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
-        return inflater.inflate(R.layout.fragment_profile, container, false)
-    }
+    ): View? = inflater.inflate(R.layout.fragment_profile, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-        val loginManager: LoginManager = LoginManager.getInstance()
+        authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
 
-        profile.text = firebaseAuth.currentUser!!.uid
+        authViewModel.getUser()
+        authViewModel.fetchedUser!!.observe(viewLifecycleOwner, Observer {
+            if (it.isNotEmpty()) {
+                profile.text = it
+            } else profile.text = getString(R.string.general_error)
+        })
 
         profile.setOnClickListener {
             logOut()
@@ -40,7 +42,6 @@ class Profile : Fragment() {
     }
 
     fun logOut() {
-        val authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         authViewModel.logOut(activity!!)
         authViewModel.loggedOut!!.observe(viewLifecycleOwner, Observer {
             if (it.isNotEmpty()) {
