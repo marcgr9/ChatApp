@@ -10,7 +10,7 @@ import ro.marc.chatapp.utils.Utils.CredentialErrors
 
 // mode:
 // 0 - register simplu
-// 1 - register cu google
+// 1 - register cu serviciu
 
 class RegisterViewModel(
     var mode: Int

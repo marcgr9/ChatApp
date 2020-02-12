@@ -37,7 +37,7 @@ import ro.marc.chatapp.viewmodel.AuthViewModel
 
 class Login : Fragment() {
 
-    private val RC_SIGN_IN = 123
+    private val RC_SIGN_IN = 35
     private val TAG = "ChatApp Login"
 
     private lateinit var binding: FragmentLoginBinding
@@ -96,7 +96,6 @@ class Login : Fragment() {
             override fun onSuccess(loginResult: LoginResult) {
                 authViewModel.handleFacebook(loginResult.accessToken)
                 authViewModel.signedInWithFacebookUser?.observe(viewLifecycleOwner, Observer {
-                    ///TODO - logout from facebook in case of error
                     if (it.error == null) {
                         Log.d(TAG, "logat cu facebook in firebase: ${it.uid}")
                         if (it.isNew) {
@@ -118,14 +117,11 @@ class Login : Fragment() {
                 })
             }
 
-            override fun onCancel() {
-                Log.d(TAG, "facebook:onCancel")
-                // ...
-            }
+            override fun onCancel() {}
 
             override fun onError(error: FacebookException) {
-                Log.d(TAG, "facebook:onError", error)
-                // ...
+                val errorMessage = "${getString(R.string.general_error)}: ${error.message}"
+                errField.text = errorMessage
             }
         })
     }
