@@ -1,5 +1,6 @@
 package ro.marc.chatapp.viewmodel
 
+import android.app.Activity
 import com.google.firebase.auth.AuthCredential
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
@@ -40,5 +41,10 @@ class AuthViewModel: ViewModel() {
     var signedInWithFacebookUser: LiveData<AuthModel>? = null
     fun handleFacebook(token: AccessToken) {
         signedInWithFacebookUser = authRepository.handleFacebookAccessToken(token)
+    }
+
+    var loggedOut: LiveData<String>? = null
+    fun logOut(activity: Activity) {
+        loggedOut = authRepository.logOut(activity)
     }
 }

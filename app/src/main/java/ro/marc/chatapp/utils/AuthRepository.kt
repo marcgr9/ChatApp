@@ -1,8 +1,12 @@
 package ro.marc.chatapp.utils
 
+import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.facebook.AccessToken
+import com.facebook.login.LoginManager
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -12,13 +16,36 @@ import com.google.firebase.firestore.DocumentSnapshot
 import ro.marc.chatapp.model.FirestoreUser
 import com.google.firebase.firestore.FirebaseFirestore
 import ro.marc.chatapp.model.AuthModel
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+
+
 
 class AuthRepository {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val facebookLoginManager: LoginManager = LoginManager.getInstance()
+    private lateinit var googleSignInClient: GoogleSignInClient
     private val rootRef: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = rootRef.collection("users")
 
     val TAG = "ChatApp AuthRepository"
+
+    fun logOut(context: Activity): MutableLiveData<String> {
+        val loggedOut = MutableLiveData<String>()
+
+        val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions)
+
+        try {
+            firebaseAuth.signOut()
+            facebookLoginManager.logOut()
+            googleSignInClient.signOut()
+            loggedOut.value = ""
+        } catch (e: Exception) {
+            loggedOut.value = e.message
+        }
+        return loggedOut
+    }
 
     fun getLoggedUserUid(): MutableLiveData<String?> {
         val isUserLoggedIn = MutableLiveData<String?>()

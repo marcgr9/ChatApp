@@ -106,7 +106,15 @@ class Login : Fragment() {
                         } else {
                             findNavController().navigate(R.id.login_to_profile)
                         }
-                    } else errField.text = it.error
+                    } else {
+                        authViewModel.logOut(activity!!)
+                        authViewModel.loggedOut!!.observe(viewLifecycleOwner, Observer { it2 ->
+                            if (it2.isNotEmpty()) {
+                                errField.text = getString(R.string.general_error)
+                            } else errField.text = it.error
+                        })
+
+                    }
                 })
             }
 
