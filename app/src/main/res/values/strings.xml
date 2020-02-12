@@ -20,6 +20,7 @@
     <string name="name">Nume</string>
     <string name="birthday">Data nasterii</string>
     <string name="noAccount">Nu ai cont? Inregistreaza-te aici!</string>
+    <string name="or">sau</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
