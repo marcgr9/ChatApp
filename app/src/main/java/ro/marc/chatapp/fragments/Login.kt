@@ -89,7 +89,8 @@ class Login : Fragment() {
     }
 
     private fun initButtons() {
-        google_login_button.setOnClickListener { signInWithGoogle() }
+        //google_login_button.setOnClickListener { signInWithGoogle() }
+        buttonGoogle.setOnClickListener { signInWithGoogle()}
         facebook_login_button.setPermissions("email", "public_profile")
         facebook_login_button.fragment = this
         facebook_login_button.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
@@ -112,7 +113,6 @@ class Login : Fragment() {
                                 errField.text = getString(R.string.general_error)
                             } else errField.text = it.error
                         })
-
                     }
                 })
             }
@@ -124,6 +124,8 @@ class Login : Fragment() {
                 errField.text = errorMessage
             }
         })
+
+        buttonFacebook.setOnClickListener { facebook_login_button.performClick() }
     }
 
     private fun loginUser(data: LoginModel) {
@@ -192,5 +194,9 @@ class Login : Fragment() {
                 }
             } else errField.text = it.error
         })
+    }
+
+    fun onGoogleClick(v: View) {
+        signInWithGoogle()
     }
 }

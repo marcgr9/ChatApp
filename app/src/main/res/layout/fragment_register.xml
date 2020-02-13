@@ -12,17 +12,22 @@
 
     <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:fitsSystemWindows="true" >
+        android:layout_height="fill_parent">
 
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="56dp"
+            android:paddingTop="48dp"
             android:paddingLeft="24dp"
-            android:paddingRight="24dp">
+            android:paddingRight="24dp"
+            android:gravity="center_horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/appicon"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -33,13 +38,17 @@
                 android:textColor="#000000"
                 android:textIsSelectable="false"
                 android:textStyle="bold"
-                android:textSize="32sp"/>
+                android:textSize="32sp"
+                android:layout_marginBottom="12dp"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:startIconDrawable="@drawable/id"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -53,7 +62,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:startIconDrawable="@drawable/email"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:visibility="@{registerViewModel.visibility}">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/email"
                     android:layout_width="match_parent"
@@ -67,7 +79,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:startIconDrawable="@drawable/name"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/nume"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -80,8 +95,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="@{registerViewModel.visibility}">
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:startIconDrawable="@drawable/password"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:visibility="@{registerViewModel.visibility}"
+                app:passwordToggleEnabled="true">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/pass"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -95,7 +114,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:startIconDrawable="@drawable/birthday"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
                 <com.google.android.material.textfield.TextInputEditText android:id="@+id/birthday"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -108,16 +130,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/errField"
+                android:layout_gravity="start"
                 android:textColor="@color/red"
                 />
 
-
             <Button
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/registerBtn"
-                android:layout_gravity="center_horizontal"
+                android:backgroundTint="@color/main"
                 android:text="@string/register"
+                android:height="56dp"
                 android:onClick="@{() -> registerViewModel.onRegisterClicked()}"/>
 
 
