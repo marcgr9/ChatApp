@@ -15,15 +15,16 @@ import ro.marc.chatapp.R
 import ro.marc.chatapp.viewmodel.AuthViewModel
 
 class Splash : Fragment() {
+
+    private val TAG = "ChatApp Splash"
+
+    private lateinit var authViewModel: AuthViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? = inflater.inflate(R.layout.fragment_splash, container, false)
-
-    val TAG = "ChatApp Splash"
-
-    lateinit var authViewModel: AuthViewModel
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

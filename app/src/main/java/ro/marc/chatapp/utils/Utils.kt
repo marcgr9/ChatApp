@@ -44,7 +44,7 @@ object Utils {
     }
 
     fun checkPassword(password: String?): CredentialErrors? {
-        if (password!!.length < 4 || !password.matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")))
+        if (password.isNullOrBlank() || password.length < 6 || !password.matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")))
             return Utils.CredentialErrors.ERRPassword
         return null
     }
