@@ -106,10 +106,17 @@ class Register : Fragment() {
     }
 
     fun register(data: RegisterModel) {
-        if (userAuthIsCreated()) createFirestoreUser(data)
-        else {
-            createAuthUser(data)
-        }
+        firestoreViewModel.checkIfIdAvailable(data.id!!)
+        firestoreViewModel.idAvailable!!.observe(viewLifecycleOwner, Observer {
+            if (it == false) {
+                if (userAuthIsCreated()) createFirestoreUser(data)
+                else {
+                    createAuthUser(data)
+                }
+            } else errField.text = getString(R.string.id_not_unique)
+        })
+
+
     }
 
     private fun userAuthIsCreated(): Boolean {

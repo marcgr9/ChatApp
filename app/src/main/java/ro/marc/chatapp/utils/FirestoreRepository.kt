@@ -17,6 +17,7 @@ class FirestoreRepository {
     private val rootRef: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     private val usersRef: CollectionReference = rootRef.collection("users")
+    private val idsRef: CollectionReference = rootRef.collection("ids")
     private val blocksRef: CollectionReference = rootRef.collection("blocks")
 
     fun changeBlockedStatus(dataUser: BlockData, dataBlockedUser: BlockData, mode: Int = 0): MutableLiveData<String> {
@@ -106,6 +107,26 @@ class FirestoreRepository {
             if (uidTask.isSuccessful) {
                 val document: DocumentSnapshot? = uidTask.result
                 if (!document!!.exists()) {
+
+                    rootRef.runBatch { batch ->
+                        uidRef.set(authenticatedUser)
+                        idsRef.document(authenticatedUser.id!!).set(hashMapOf("uid" to authenticatedUser.uid))
+
+                    }.addOnCompleteListener {
+                        data = AuthModel(
+                            authenticatedUser.uid,
+                            authenticatedUser.email,
+                            authenticatedUser.name,
+                            null, true
+                        )
+                        newUserMutableLiveData.value = data
+                    }.addOnFailureListener {
+                        data = AuthModel()
+                        data.error = it.message
+                        Log.d(TAG, "eroare la setare date in firestore: ${it.message}")
+                        newUserMutableLiveData.value = data
+                    }
+
                     uidRef.set(authenticatedUser).addOnCompleteListener { userCreationTask ->
                         if (userCreationTask.isSuccessful) {
                             data = AuthModel(
@@ -123,6 +144,8 @@ class FirestoreRepository {
                             newUserMutableLiveData.value = data
                         }
                     }
+
+
                 } else {
                     data = AuthModel(
                         authenticatedUser.uid,
@@ -142,6 +165,21 @@ class FirestoreRepository {
 
         }
         return newUserMutableLiveData
+    }
+
+    fun isIdAvailable(id: String): MutableLiveData<Boolean> {
+        val response = MutableLiveData<Boolean>()
+        response.value = true
+
+        idsRef.document(id).get()
+            .addOnCompleteListener {
+                response.value = it.result!!.exists()
+            }.addOnFailureListener {
+                //TODO failure event
+                Log.d(TAG, "eroare la veriricare id unic ($id): ${it.message}")
+            }
+
+        return response
     }
 
 }

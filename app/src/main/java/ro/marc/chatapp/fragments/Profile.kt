@@ -69,8 +69,6 @@ class Profile : Fragment() {
                     })
                 }
             })
-
-
         }
     }
 

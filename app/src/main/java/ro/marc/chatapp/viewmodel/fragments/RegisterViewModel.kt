@@ -32,9 +32,9 @@ class RegisterViewModel(
     }
 
     fun onRegisterClicked() {
-        var err: ArrayList<CredentialErrors?> = ArrayList()
+        val err: ArrayList<CredentialErrors?> = ArrayList()
 
-        var validations = ArrayList<CredentialErrors?>()
+        val validations = ArrayList<CredentialErrors?>()
 
         if (mode == 0) {
             validations.add(Utils.checkEmail(registerModel.email))

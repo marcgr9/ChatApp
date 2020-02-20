@@ -35,4 +35,9 @@ class FirestoreViewModel: ViewModel() {
     fun createUserInFirestore(authenticatedUser: FirestoreUser) {
         createdFirestoreUser = firestoreRepository.createUserInFirestoreIfNotExists(authenticatedUser)
     }
+
+    var idAvailable: LiveData<Boolean>? = null
+    fun checkIfIdAvailable(id: String) {
+        idAvailable = firestoreRepository.isIdAvailable(id)
+    }
 }
