@@ -1,4 +1,4 @@
-package ro.marc.chatapp.model
+package ro.marc.chatapp.model.fragments
 
 data class RegisterModel(
     var uid: String = "",

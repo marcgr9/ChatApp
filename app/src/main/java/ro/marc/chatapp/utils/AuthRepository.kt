@@ -10,39 +10,21 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import ro.marc.chatapp.model.FirestoreUser
-import com.google.firebase.firestore.FirebaseFirestore
-import ro.marc.chatapp.model.AuthModel
+import ro.marc.chatapp.model.db.AuthModel
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 
-
 class AuthRepository {
+    private val TAG = "ChatApp AuthRepository"
+
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val facebookLoginManager: LoginManager = LoginManager.getInstance()
     private lateinit var googleSignInClient: GoogleSignInClient
-    private val rootRef: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val usersRef: CollectionReference = rootRef.collection("users")
-
-    val TAG = "ChatApp AuthRepository"
-
-    fun getUser(): MutableLiveData<String> {
-        val user = MutableLiveData<String>()
-
-        if (firebaseAuth.currentUser != null) {
-            user.value = firebaseAuth.currentUser!!.uid
-        } else user.value = ""
-
-        return user
-    }
 
     fun logOut(context: Activity): MutableLiveData<String> {
         val loggedOut = MutableLiveData<String>()
 
-        val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        val googleSignInOptions: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .build()
         googleSignInClient = GoogleSignIn.getClient(context, googleSignInOptions)
 
@@ -57,10 +39,18 @@ class AuthRepository {
         return loggedOut
     }
 
-    fun getLoggedUserUid(): MutableLiveData<String?> {
-        val isUserLoggedIn = MutableLiveData<String?>()
-        isUserLoggedIn.value = firebaseAuth.currentUser?.uid
-        return isUserLoggedIn
+    fun getLoggedUserUid(): MutableLiveData<AuthModel?> {
+        val loggedUser = MutableLiveData<AuthModel?>()
+        if (firebaseAuth.currentUser != null) {
+            val data = AuthModel(firebaseAuth.currentUser!!.uid, firebaseAuth.currentUser!!.email, firebaseAuth.currentUser!!.displayName, null, false)
+            loggedUser.value = data
+        } else loggedUser.value = null
+
+        return loggedUser
+    }
+
+    fun getUidOfCurrentUser(): String? {
+        return firebaseAuth.currentUser?.uid
     }
 
     fun signUpUser(email: String, password: String): MutableLiveData<AuthModel> {
@@ -138,54 +128,6 @@ class AuthRepository {
             }
         }
         return authenticatedUserMutableLiveData
-    }
-
-    fun createUserInFirestoreIfNotExists(authenticatedUser: FirestoreUser): MutableLiveData<AuthModel> {
-        val uidRef: DocumentReference = usersRef.document(authenticatedUser.uid)
-
-        val newUserMutableLiveData = MutableLiveData<AuthModel>()
-        lateinit var data: AuthModel
-
-        uidRef.get().addOnCompleteListener { uidTask ->
-            if (uidTask.isSuccessful) {
-                val document: DocumentSnapshot? = uidTask.result
-                if (!document!!.exists()) {
-                    uidRef.set(authenticatedUser).addOnCompleteListener { userCreationTask ->
-                        if (userCreationTask.isSuccessful) {
-                            data = AuthModel(
-                                authenticatedUser.uid,
-                                authenticatedUser.email,
-                                authenticatedUser.name,
-                                null,
-                                true
-                            )
-                            newUserMutableLiveData.value = data
-                        } else {
-                            data = AuthModel()
-                            data.error = userCreationTask.exception!!.message
-                            Log.d(TAG, "eroare la setare date in firestore: ${userCreationTask.exception!!.message}")
-                            newUserMutableLiveData.value = data
-                        }
-                    }
-                } else {
-                    data = AuthModel(
-                        authenticatedUser.uid,
-                        authenticatedUser.email,
-                        authenticatedUser.name,
-                        null,
-                        false
-                    )
-                    newUserMutableLiveData.value = data
-                }
-            } else {
-                data = AuthModel()
-                data.error = uidTask.exception!!.message
-                Log.d(TAG, "eroare la creare in firestore ${uidTask.exception!!.message!!}")
-                newUserMutableLiveData.value = data
-            }
-
-        }
-        return newUserMutableLiveData
     }
 
     fun handleFacebookAccessToken(token: AccessToken): MutableLiveData<AuthModel> {

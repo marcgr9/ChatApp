@@ -4,7 +4,7 @@
     <data>
         <variable
             name="loginViewModel"
-            type="ro.marc.chatapp.viewmodel.LoginViewModel" />
+            type="ro.marc.chatapp.viewmodel.fragments.LoginViewModel" />
     </data>
 
     <ScrollView

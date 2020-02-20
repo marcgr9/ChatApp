@@ -1,9 +1,9 @@
-package ro.marc.chatapp.viewmodel
+package ro.marc.chatapp.viewmodel.fragments
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ro.marc.chatapp.model.LoginModel
+import ro.marc.chatapp.model.fragments.LoginModel
 
 class LoginViewModel : ViewModel() {
     var loginModel = LoginModel()
