@@ -26,7 +26,7 @@ class AuthViewModel: ViewModel() {
         loggedUser = authRepository.login(email, password)
     }
 
-    var loggedUserUid: LiveData<String?>? = null
+    var loggedUserUid: LiveData<AuthModel?>? = null
     fun checkIfUserIsLoggedIn() {
         loggedUserUid = authRepository.getLoggedUserUid()
     }

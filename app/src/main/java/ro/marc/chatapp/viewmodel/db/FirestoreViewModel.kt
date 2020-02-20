@@ -40,4 +40,9 @@ class FirestoreViewModel: ViewModel() {
     fun checkIfIdAvailable(id: String) {
         idAvailable = firestoreRepository.isIdAvailable(id)
     }
+
+    var profileCompleted: LiveData<Boolean>? = null
+    fun checkIfProfileCompleted(uid: String) {
+        profileCompleted = firestoreRepository.userHasProfileCompleted(uid)
+    }
 }

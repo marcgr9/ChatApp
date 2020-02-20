@@ -182,4 +182,19 @@ class FirestoreRepository {
         return response
     }
 
+    fun userHasProfileCompleted(uid: String): MutableLiveData<Boolean> {
+        val response = MutableLiveData<Boolean>()
+        //response.value = true
+
+        usersRef.document(uid).get()
+            .addOnCompleteListener {
+                response.value = it.result!!.exists()
+            }.addOnFailureListener {
+                //TODO
+                Log.d(TAG, "eroare la verificare profil complet ($uid): ${it.message}")
+            }
+
+        return response
+    }
+
 }

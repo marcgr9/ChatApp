@@ -39,10 +39,14 @@ class AuthRepository {
         return loggedOut
     }
 
-    fun getLoggedUserUid(): MutableLiveData<String?> {
-        val isUserLoggedIn = MutableLiveData<String?>()
-        isUserLoggedIn.value = firebaseAuth.currentUser?.uid
-        return isUserLoggedIn
+    fun getLoggedUserUid(): MutableLiveData<AuthModel?> {
+        val loggedUser = MutableLiveData<AuthModel?>()
+        if (firebaseAuth.currentUser != null) {
+            val data = AuthModel(firebaseAuth.currentUser!!.uid, firebaseAuth.currentUser!!.email, firebaseAuth.currentUser!!.displayName, null, false)
+            loggedUser.value = data
+        } else loggedUser.value = null
+
+        return loggedUser
     }
 
     fun getUidOfCurrentUser(): String? {
