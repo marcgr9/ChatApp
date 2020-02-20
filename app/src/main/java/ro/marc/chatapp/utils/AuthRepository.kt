@@ -10,14 +10,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import ro.marc.chatapp.model.FirestoreUser
-import com.google.firebase.firestore.FirebaseFirestore
-import ro.marc.chatapp.model.AuthModel
+import ro.marc.chatapp.model.db.AuthModel
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import ro.marc.chatapp.model.BlockModel
 
 
 class AuthRepository {

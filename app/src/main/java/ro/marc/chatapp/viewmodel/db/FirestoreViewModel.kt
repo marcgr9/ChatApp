@@ -1,10 +1,11 @@
 package ro.marc.chatapp.viewmodel.db
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import ro.marc.chatapp.model.AuthModel
-import ro.marc.chatapp.model.BlockModel
-import ro.marc.chatapp.model.FirestoreUser
+import ro.marc.chatapp.model.db.AuthModel
+import ro.marc.chatapp.model.db.BlockData
+import ro.marc.chatapp.model.db.FirestoreUser
 import ro.marc.chatapp.utils.FirestoreRepository
 
 class FirestoreViewModel: ViewModel() {
@@ -15,13 +16,19 @@ class FirestoreViewModel: ViewModel() {
         fetchedUser = firestoreRepository.getUser()
     }
 
-    var fetchedOtherUser: LiveData<FirestoreUser?>? = null
+    var fetchedOtherUser: LiveData<FirestoreUser>? = null
     fun getUser(uid: String) {
         fetchedOtherUser = firestoreRepository.getUser(uid)
     }
 
-    fun block(data: BlockModel, data2: BlockModel) {
-        firestoreRepository.blockUser(data, data2)
+    var blocked: LiveData<Boolean>? = null
+    fun checkIfBlocked(uidUser: String, uidBlockedUser: String) {
+        blocked = firestoreRepository.checkIfBlocked(uidUser, uidBlockedUser)
+    }
+
+    var blockedStatus: LiveData<String?>? = null
+    fun changeBlockedStatus(data: BlockData, data2: BlockData, mode: Int) {
+        blockedStatus = firestoreRepository.changeBlockedStatus(data, data2, mode)
     }
 
     var createdFirestoreUser: LiveData<AuthModel>? = null

@@ -11,10 +11,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.fragment_register.*
 import ro.marc.chatapp.R
-import ro.marc.chatapp.viewmodel.RegisterViewModel
+import ro.marc.chatapp.viewmodel.fragments.RegisterViewModel
 import ro.marc.chatapp.databinding.FragmentRegisterBinding
-import ro.marc.chatapp.model.FirestoreUser
-import ro.marc.chatapp.model.RegisterModel
+import ro.marc.chatapp.model.db.FirestoreUser
+import ro.marc.chatapp.model.fragments.RegisterModel
 import ro.marc.chatapp.utils.Utils
 import ro.marc.chatapp.viewmodel.db.AuthViewModel
 import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
@@ -52,10 +52,20 @@ class Register : Fragment() {
 
         val factory = RegisterViewModelFactory(if (userAuthIsCreated()) 1 else 0)
 
-        val viewModel: RegisterViewModel = ViewModelProviders.of(this, factory).get(RegisterViewModel::class.java)
+        val viewModel: RegisterViewModel = ViewModelProviders.of(this, factory).get(
+            RegisterViewModel::class.java)
 
         if (userAuthIsCreated()) {
-            viewModel.setData(RegisterModel(uidFromLogin!!, "", emailFromLogin, "", nameFromLogin, ""))
+            viewModel.setData(
+                RegisterModel(
+                    uidFromLogin!!,
+                    "",
+                    emailFromLogin,
+                    "",
+                    nameFromLogin,
+                    ""
+                )
+            )
         }
 
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
@@ -120,7 +130,13 @@ class Register : Fragment() {
 
     private fun createFirestoreUser(user: RegisterModel) {
         // convert din model cu toate datele in doar cele necesare
-        val fsUser = FirestoreUser(user.uid, user.email, user.name, user.id, user.birthday)
+        val fsUser = FirestoreUser(
+            user.uid,
+            user.email,
+            user.name,
+            user.id,
+            user.birthday
+        )
         firestoreViewModel.createUserInFirestore(fsUser)
         firestoreViewModel.createdFirestoreUser!!.observe(viewLifecycleOwner, Observer {
             if (it.error == null) {

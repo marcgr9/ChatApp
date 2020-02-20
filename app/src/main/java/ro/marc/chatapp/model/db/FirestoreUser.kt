@@ -1,4 +1,4 @@
-package ro.marc.chatapp.model
+package ro.marc.chatapp.model.db
 
 data class FirestoreUser(
     var uid: String = "",

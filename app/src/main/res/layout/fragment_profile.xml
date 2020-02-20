@@ -6,8 +6,8 @@
     tools:context=".fragments.Profile">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/profile"
         android:text="logout"/>
 
@@ -16,6 +16,7 @@
         android:layout_marginTop="50dp"
         android:layout_height="wrap_content"
         android:id="@+id/uidEditText"
+        android:text="Pk2qT441GReE3DRxhbcsYksxdb12"
         />
 
     <Button
@@ -23,6 +24,8 @@
         android:layout_marginTop="100dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="block" />
+        android:text="(un)block" />
+
+
 
 </FrameLayout>

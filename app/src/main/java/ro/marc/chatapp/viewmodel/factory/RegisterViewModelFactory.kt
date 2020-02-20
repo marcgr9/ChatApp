@@ -2,7 +2,7 @@ package ro.marc.chatapp.viewmodel.factory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import ro.marc.chatapp.viewmodel.RegisterViewModel
+import ro.marc.chatapp.viewmodel.fragments.RegisterViewModel
 
 class RegisterViewModelFactory(
     private val mode: Int

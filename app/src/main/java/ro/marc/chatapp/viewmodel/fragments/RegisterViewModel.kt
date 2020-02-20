@@ -1,10 +1,10 @@
-package ro.marc.chatapp.viewmodel
+package ro.marc.chatapp.viewmodel.fragments
 
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ro.marc.chatapp.model.RegisterModel
+import ro.marc.chatapp.model.fragments.RegisterModel
 import ro.marc.chatapp.utils.Utils
 import ro.marc.chatapp.utils.Utils.CredentialErrors
 
@@ -15,7 +15,7 @@ import ro.marc.chatapp.utils.Utils.CredentialErrors
 class RegisterViewModel(
     var mode: Int
 ) : ViewModel() {
-    var registerModel =  RegisterModel()
+    var registerModel = RegisterModel()
     var visibility: Int = if (mode == 1) View.GONE else View.VISIBLE
 
     val errors: LiveData<ArrayList<CredentialErrors?>?>

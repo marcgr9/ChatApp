@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import ro.marc.chatapp.databinding.FragmentLoginBinding
-import ro.marc.chatapp.viewmodel.LoginViewModel
+import ro.marc.chatapp.viewmodel.fragments.LoginViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
@@ -27,7 +27,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import ro.marc.chatapp.R
-import ro.marc.chatapp.model.LoginModel
+import ro.marc.chatapp.model.fragments.LoginModel
 import ro.marc.chatapp.viewmodel.db.AuthViewModel
 
 
@@ -56,7 +56,8 @@ class Login : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val viewModel: LoginViewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
+        val viewModel: LoginViewModel = ViewModelProviders.of(this).get(
+            LoginViewModel::class.java)
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         callbackManager = CallbackManager.Factory.create()
 
