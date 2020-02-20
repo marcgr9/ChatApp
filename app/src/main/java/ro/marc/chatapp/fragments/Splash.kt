@@ -9,10 +9,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import ro.marc.chatapp.R
-import ro.marc.chatapp.viewmodel.AuthViewModel
+import ro.marc.chatapp.viewmodel.db.AuthViewModel
 
 class Splash : Fragment() {
 

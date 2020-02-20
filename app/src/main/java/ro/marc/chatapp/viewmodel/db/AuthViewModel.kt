@@ -1,4 +1,4 @@
-package ro.marc.chatapp.viewmodel
+package ro.marc.chatapp.viewmodel.db
 
 import android.app.Activity
 import com.google.firebase.auth.AuthCredential
@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.facebook.AccessToken
 import ro.marc.chatapp.model.AuthModel
+import ro.marc.chatapp.model.BlockModel
 import ro.marc.chatapp.model.FirestoreUser
 import ro.marc.chatapp.model.RegisterModel
 import ro.marc.chatapp.utils.AuthRepository
@@ -16,11 +17,6 @@ class AuthViewModel: ViewModel() {
     var signedInWithGoogleUser: LiveData<AuthModel>? = null
     fun signInWithGoogle(googleAuthCredential: AuthCredential) {
         signedInWithGoogleUser = authRepository.firebaseSignInWithGoogle(googleAuthCredential)
-    }
-
-    var createdFirestoreUser: LiveData<AuthModel>? = null
-    fun createUserInFirestore(authenticatedUser: FirestoreUser) {
-        createdFirestoreUser = authRepository.createUserInFirestoreIfNotExists(authenticatedUser)
     }
 
     var signedUpUser: LiveData<AuthModel>? = null
@@ -48,8 +44,5 @@ class AuthViewModel: ViewModel() {
         loggedOut = authRepository.logOut(activity)
     }
 
-    var fetchedUser: LiveData<String>? = null
-    fun getUser() {
-        fetchedUser = authRepository.getUser()
-    }
+
 }

@@ -16,7 +16,8 @@ import ro.marc.chatapp.databinding.FragmentRegisterBinding
 import ro.marc.chatapp.model.FirestoreUser
 import ro.marc.chatapp.model.RegisterModel
 import ro.marc.chatapp.utils.Utils
-import ro.marc.chatapp.viewmodel.AuthViewModel
+import ro.marc.chatapp.viewmodel.db.AuthViewModel
+import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
 import ro.marc.chatapp.viewmodel.factory.RegisterViewModelFactory
 
 class Register : Fragment() {
@@ -25,6 +26,7 @@ class Register : Fragment() {
 
     private lateinit var binding: FragmentRegisterBinding
     private lateinit var authViewModel: AuthViewModel
+    private lateinit var firestoreViewModel: FirestoreViewModel
 
     private var emailFromLogin: String? = null
     private var nameFromLogin: String? = null
@@ -57,6 +59,7 @@ class Register : Fragment() {
         }
 
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
+        firestoreViewModel = ViewModelProviders.of(this).get(FirestoreViewModel::class.java)
 
         viewModel.errors.observe(viewLifecycleOwner, Observer {
             // ca sa nu intre cand e initializat livedata-ul in vm
@@ -118,8 +121,8 @@ class Register : Fragment() {
     private fun createFirestoreUser(user: RegisterModel) {
         // convert din model cu toate datele in doar cele necesare
         val fsUser = FirestoreUser(user.uid, user.email, user.name, user.id, user.birthday)
-        authViewModel.createUserInFirestore(fsUser)
-        authViewModel.createdFirestoreUser?.observe(viewLifecycleOwner, Observer {
+        firestoreViewModel.createUserInFirestore(fsUser)
+        firestoreViewModel.createdFirestoreUser!!.observe(viewLifecycleOwner, Observer {
             if (it.error == null) {
                 Log.d(TAG, "creat user in firestore: ${it.uid}")
                 findNavController().navigate(R.id.register_to_profile)
