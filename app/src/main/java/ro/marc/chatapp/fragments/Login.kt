@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import ro.marc.chatapp.databinding.FragmentLoginBinding
-import ro.marc.chatapp.viewmodel.LoginViewModel
+import ro.marc.chatapp.viewmodel.fragments.LoginViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
@@ -14,7 +14,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import android.content.Intent
 import android.util.Log
 import androidx.core.os.bundleOf
-import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -26,17 +25,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import ro.marc.chatapp.R
-import ro.marc.chatapp.model.LoginModel
-import ro.marc.chatapp.model.RegisterModel
-import ro.marc.chatapp.viewmodel.AuthViewModel
+import ro.marc.chatapp.model.fragments.LoginModel
+import ro.marc.chatapp.viewmodel.db.AuthViewModel
 
 
 class Login : Fragment() {
-
     private val RC_SIGN_IN = 35
     private val TAG = "ChatApp Login"
 
@@ -60,7 +55,8 @@ class Login : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val viewModel: LoginViewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
+        val viewModel: LoginViewModel = ViewModelProviders.of(this).get(
+            LoginViewModel::class.java)
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         callbackManager = CallbackManager.Factory.create()
 
