@@ -19,6 +19,108 @@ class FirestoreRepository {
     private val usersRef: CollectionReference = rootRef.collection("users")
     private val idsRef: CollectionReference = rootRef.collection("ids")
     private val blocksRef: CollectionReference = rootRef.collection("blocks")
+    private val friendsRef: CollectionReference = rootRef.collection("friends")
+
+    private val friendsWithC = "friendsWith"
+    private val pendingSentRequestsC = "pendingSentRequests"
+    private val pendingReceivedRequestsC = "pendingReceivedRequests"
+
+    private val blockedBy = "blockedBy"
+    private val blocking = "blocking"
+
+
+    fun checkFriendshipStatus(uidUser: String, uidFriend: String): MutableLiveData<Int> {
+        // 1 - prieteni
+        // 0 - user-ul i-a trimis cerere
+        //-1 - user-ul a primit cerere
+        //-2 - nimic
+        val response = MutableLiveData<Int>(-2)
+        //
+        // TODO redo this part because the observer will always get called from here,
+        //  when initializing the mlb, and then again after the checks
+
+        friendsRef.document(uidUser).collection(friendsWithC).document(uidFriend).get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    response.value = 1
+                }
+            }.addOnFailureListener {
+                Log.d(TAG, "eroare la verificare prietenie (1): $it")
+            }
+
+        friendsRef.document(uidUser).collection(pendingSentRequestsC).document(uidFriend).get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    response.value = 0
+                }
+            }.addOnFailureListener {
+                Log.d(TAG, "eroare la verificare prietenie (0): $it")
+            }
+
+
+        friendsRef.document(uidUser).collection(pendingReceivedRequestsC).document(uidFriend).get()
+            .addOnSuccessListener {
+                if (it.exists()) {
+                    response.value = -1
+                }
+            }.addOnFailureListener {
+                Log.d(TAG, "eroare la verificare prietenie (-1): $it")
+            }
+
+        rootRef.runBatch {
+
+        }
+
+        return response
+    }
+
+    fun editFriendship(dataUser: BlockData, dataFriend: BlockData, mode: Int = -2, action: Int = 0): MutableLiveData<String> {
+        // nu testam daca sunt blocati pentru ca asta se va face in search
+
+        // mode:
+        // 1 - prieteni -> se sterge prietenia
+        // 0 - user-ul i-a trimis cerere -> se sterge cererea
+        //-1 - user-ul are cerere de la friend ->
+        //       action: 1 -> accepta cererea
+        //       action: 0 -> respinge cererea
+        //-2 - nimic -> se trimite cerere de la user la friemd
+        val response = MutableLiveData<String>()
+
+        val userRef: DocumentReference = friendsRef.document(dataUser.uid)
+        val friendRef: DocumentReference = friendsRef.document(dataFriend.uid)
+
+        rootRef.runBatch {
+            if (mode == 1) { // prieteni -> sterge prietenia
+                it.delete(userRef.collection(friendsWithC).document(dataFriend.uid))
+                it.delete(friendRef.collection(friendsWithC).document(dataUser.uid))
+            } else if (mode == 0) { // user-ul i-a trimis cererea -> stergem cererea
+                it.delete(userRef.collection(pendingSentRequestsC).document(dataFriend.uid))
+                it.delete(friendRef.collection(pendingReceivedRequestsC).document(dataUser.uid))
+            } else if (mode == -1) { // user-ul a primit cerere
+                if (action == 1) { // cerere acceptata
+                    it.delete(userRef.collection(pendingReceivedRequestsC).document(dataFriend.uid))
+                    it.delete(friendRef.collection(pendingSentRequestsC).document(dataUser.uid))
+                    it.set(userRef.collection(friendsWithC).document(dataFriend.uid), dataFriend)
+                    it.set(friendRef.collection(friendsWithC).document(dataUser.uid), dataUser)
+                } else if (action == 0) { // cerere respinsa
+                    it.delete(userRef.collection(pendingReceivedRequestsC).document(dataFriend.uid))
+                    it.delete(friendRef.collection(pendingSentRequestsC).document(dataUser.uid))
+                }
+
+            } else if (mode == -2) { // trimitem cerere de la user la friend
+                it.set(userRef.collection(pendingSentRequestsC).document(dataFriend.uid), dataFriend)
+                it.set(friendRef.collection(pendingReceivedRequestsC).document(dataUser.uid), dataUser)
+            }
+        }.addOnSuccessListener {
+            response.value = "succes"
+        }.addOnFailureListener {
+            response.value = it.message
+            Log.d(TAG, "eroare la schimbare status prietenie ($mode $action): $it")
+        }
+
+        return response
+    }
+
 
     fun changeBlockedStatus(dataUser: BlockData, dataBlockedUser: BlockData, mode: Int = 0): MutableLiveData<String> {
         // mode: 0 -> block
@@ -26,13 +128,26 @@ class FirestoreRepository {
 
         val response = MutableLiveData<String>()
 
-        val uidBlockedByRef: DocumentReference = blocksRef.document(dataBlockedUser.uid).collection("blockedBy").document(dataUser.uid)
-        val uidBlockingRef: DocumentReference = blocksRef.document(dataUser.uid).collection("blocking").document(dataBlockedUser.uid)
+        val uidBlockedByRef: DocumentReference = blocksRef.document(dataBlockedUser.uid).collection(blockedBy).document(dataUser.uid)
+        val uidBlockingRef: DocumentReference = blocksRef.document(dataUser.uid).collection(blocking).document(dataBlockedUser.uid)
+
+        val userFriendsRef: DocumentReference = friendsRef.document(dataUser.uid)
+        val blockedUserFriendsRef: DocumentReference = friendsRef.document(dataBlockedUser.uid)
 
         rootRef.runBatch { batch ->// trebuie sa se efectueze ambele operatii ori niciuna
             if (mode == 0) { // block
                 batch.set(uidBlockedByRef, dataUser)
                 batch.set(uidBlockingRef, dataBlockedUser)
+
+                batch.delete(userFriendsRef.collection(friendsWithC).document(dataBlockedUser.uid))
+                batch.delete(blockedUserFriendsRef.collection(friendsWithC).document(dataUser.uid))
+
+                batch.delete(userFriendsRef.collection(pendingSentRequestsC).document(dataBlockedUser.uid))
+                batch.delete(blockedUserFriendsRef.collection(pendingSentRequestsC).document(dataUser.uid))
+
+                batch.delete(userFriendsRef.collection(pendingReceivedRequestsC).document(dataBlockedUser.uid))
+                batch.delete(blockedUserFriendsRef.collection(pendingReceivedRequestsC).document(dataUser.uid))
+
             } else { // unblock
                 batch.delete(uidBlockedByRef)
                 batch.delete(uidBlockingRef)
@@ -42,8 +157,8 @@ class FirestoreRepository {
         }.addOnFailureListener {
             response.value = it.message
 
-            val cuvant = if (mode == 0) "blocarea" else "deblocarea"
-            Log.d(TAG, "Eroare la $cuvant lui ${dataBlockedUser.uid} fata de ${dataUser.uid}: ${it.message}")
+            val cuvant = if (mode == 0) "blocare" else "deblocare"
+            Log.d(TAG, "Eroare la $cuvant: ${it.message}")
         }
 
         return response
@@ -52,12 +167,12 @@ class FirestoreRepository {
     fun checkIfBlocked(uidUser: String, uidBlockedUser: String): MutableLiveData<Boolean> {
         val response = MutableLiveData<Boolean>()
 
-        val ref: DocumentReference = blocksRef.document(uidUser).collection("blocking").document(uidBlockedUser)
+        val ref: DocumentReference = blocksRef.document(uidUser).collection(blocking).document(uidBlockedUser)
         ref.get().addOnCompleteListener {
             val document = it.result
             response.value = document!!.exists()
         }.addOnFailureListener {
-            Log.d(TAG, "Eroare la verificarea daca $uidBlockedUser e (de)blocat de $uidUser")
+            Log.d(TAG, "Eroare la verificarea daca user-ul e (de)blocat")
         }
         return response
     }
@@ -68,9 +183,8 @@ class FirestoreRepository {
         val userRef: DocumentReference = usersRef.document(uid)
         userRef.get().addOnCompleteListener {
             user.value = it.result!!.toObject(FirestoreUser::class.java)
-            Log.d(TAG, "marc si ${it.result!!.toObject(FirestoreUser::class.java)!!.uid}")
         }.addOnFailureListener {
-            Log.d(TAG, "Eroare la getUser cu uid $uid: ${it.message}")
+            Log.d(TAG, "Eroare la getUser cu uid: ${it.message}")
             val data = FirestoreUser()
             data.uid = ""
             user.value = data
@@ -81,7 +195,7 @@ class FirestoreRepository {
     fun getUser(): MutableLiveData<FirestoreUser> {
         val user = MutableLiveData<FirestoreUser>()
 
-        /// TODO get uid of user in other way
+        /// TODO get uid of user in another way
 
         val uid = FirebaseAuth.getInstance().currentUser!!.uid
 
@@ -154,8 +268,7 @@ class FirestoreRepository {
             .addOnCompleteListener {
                 response.value = it.result!!.exists()
             }.addOnFailureListener {
-                //TODO failure event
-                Log.d(TAG, "eroare la veriricare id unic ($id): ${it.message}")
+                Log.d(TAG, "eroare la veriricare id unic: ${it.message}")
             }
 
         return response
@@ -169,8 +282,7 @@ class FirestoreRepository {
             .addOnCompleteListener {
                 response.value = it.result!!.exists()
             }.addOnFailureListener {
-                //TODO
-                Log.d(TAG, "eroare la verificare profil complet ($uid): ${it.message}")
+                Log.d(TAG, "eroare la verificare profil complet: ${it.message}")
             }
 
         return response
