@@ -40,6 +40,4 @@ class AuthViewModel: ViewModel() {
     fun logOut(activity: Activity) {
         loggedOut = authRepository.logOut(activity)
     }
-
-
 }

@@ -29,16 +29,16 @@ class FirestoreRepository {
         val uidBlockedByRef: DocumentReference = blocksRef.document(dataBlockedUser.uid).collection("blockedBy").document(dataUser.uid)
         val uidBlockingRef: DocumentReference = blocksRef.document(dataUser.uid).collection("blocking").document(dataBlockedUser.uid)
 
-        rootRef.runBatch { // trebuie sa se efectueze ambele operatii ori niciuna
+        rootRef.runBatch { batch ->// trebuie sa se efectueze ambele operatii ori niciuna
             if (mode == 0) { // block
-                it.set(uidBlockedByRef, dataUser)
-                it.set(uidBlockingRef, dataBlockedUser)
+                batch.set(uidBlockedByRef, dataUser)
+                batch.set(uidBlockingRef, dataBlockedUser)
             } else { // unblock
-                it.delete(uidBlockedByRef)
-                it.delete(uidBlockingRef)
+                batch.delete(uidBlockedByRef)
+                batch.delete(uidBlockingRef)
             }
         }.addOnCompleteListener {
-            response.value = ""
+            response.value = "succes"
         }.addOnFailureListener {
             response.value = it.message
 

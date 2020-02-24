@@ -21,7 +21,6 @@ import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
 import ro.marc.chatapp.viewmodel.factory.RegisterViewModelFactory
 
 class Register : Fragment() {
-
     private val TAG = "ChatApp Register"
 
     private lateinit var binding: FragmentRegisterBinding

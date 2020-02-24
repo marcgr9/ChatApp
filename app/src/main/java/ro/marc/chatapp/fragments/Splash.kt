@@ -16,7 +16,6 @@ import ro.marc.chatapp.viewmodel.db.AuthViewModel
 import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
 
 class Splash : Fragment() {
-
     private val TAG = "ChatApp Splash"
 
     private lateinit var authViewModel: AuthViewModel

@@ -21,6 +21,16 @@ class AuthRepository {
     private val facebookLoginManager: LoginManager = LoginManager.getInstance()
     private lateinit var googleSignInClient: GoogleSignInClient
 
+    fun getUser(): MutableLiveData<String> {
+        val user = MutableLiveData<String>()
+
+        if (firebaseAuth.currentUser != null) {
+            user.value = firebaseAuth.currentUser!!.uid
+        } else user.value = ""
+
+        return user
+    }
+
     fun logOut(context: Activity): MutableLiveData<String> {
         val loggedOut = MutableLiveData<String>()
 

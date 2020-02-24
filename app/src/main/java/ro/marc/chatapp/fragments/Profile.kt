@@ -51,11 +51,9 @@ class Profile : Fragment() {
             firestoreViewModel.getUser(text)
             firestoreViewModel.fetchedOtherUser!!.observe(viewLifecycleOwner, Observer { user ->
                 if (user.uid != "") {
-
                     firestoreViewModel.checkIfBlocked(uid, user.uid)
                     firestoreViewModel.blocked?.observe(viewLifecycleOwner, Observer { it2 ->
                         val mode = if (it2 == true) 1 else 0
-
                         firestoreViewModel.changeBlockedStatus(
                             BlockData(uid, id),
                             BlockData(text, user.id!!),
