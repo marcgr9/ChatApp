@@ -49,10 +49,6 @@ class AuthRepository {
         return loggedUser
     }
 
-    fun getUidOfCurrentUser(): String? {
-        return firebaseAuth.currentUser?.uid
-    }
-
     fun signUpUser(email: String, password: String): MutableLiveData<AuthModel> {
         val signedUpUser = MutableLiveData<AuthModel>()
         lateinit var data: AuthModel

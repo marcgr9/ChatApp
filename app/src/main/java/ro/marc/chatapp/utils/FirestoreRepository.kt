@@ -30,10 +30,10 @@ class FirestoreRepository {
         val uidBlockingRef: DocumentReference = blocksRef.document(dataUser.uid).collection("blocking").document(dataBlockedUser.uid)
 
         rootRef.runBatch { // trebuie sa se efectueze ambele operatii ori niciuna
-            if (mode == 0) {
+            if (mode == 0) { // block
                 it.set(uidBlockedByRef, dataUser)
                 it.set(uidBlockingRef, dataBlockedUser)
-            } else {
+            } else { // unblock
                 it.delete(uidBlockedByRef)
                 it.delete(uidBlockingRef)
             }
@@ -107,8 +107,7 @@ class FirestoreRepository {
             if (uidTask.isSuccessful) {
                 val document: DocumentSnapshot? = uidTask.result
                 if (!document!!.exists()) {
-
-                    rootRef.runBatch { batch ->
+                    rootRef.runBatch {
                         uidRef.set(authenticatedUser)
                         idsRef.document(authenticatedUser.id!!).set(hashMapOf("uid" to authenticatedUser.uid))
 
@@ -126,26 +125,6 @@ class FirestoreRepository {
                         Log.d(TAG, "eroare la setare date in firestore: ${it.message}")
                         newUserMutableLiveData.value = data
                     }
-
-                    uidRef.set(authenticatedUser).addOnCompleteListener { userCreationTask ->
-                        if (userCreationTask.isSuccessful) {
-                            data = AuthModel(
-                                authenticatedUser.uid,
-                                authenticatedUser.email,
-                                authenticatedUser.name,
-                                null,
-                                true
-                            )
-                            newUserMutableLiveData.value = data
-                        } else {
-                            data = AuthModel()
-                            data.error = userCreationTask.exception!!.message
-                            Log.d(TAG, "eroare la setare date in firestore: ${userCreationTask.exception!!.message}")
-                            newUserMutableLiveData.value = data
-                        }
-                    }
-
-
                 } else {
                     data = AuthModel(
                         authenticatedUser.uid,
