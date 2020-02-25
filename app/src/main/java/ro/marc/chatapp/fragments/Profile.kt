@@ -1,6 +1,10 @@
 package ro.marc.chatapp.fragments
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,16 +13,25 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.fragment_profile.*
 import ro.marc.chatapp.R
 import ro.marc.chatapp.model.db.BlockData
 import ro.marc.chatapp.viewmodel.db.AuthViewModel
 import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
+import ro.marc.chatapp.viewmodel.db.StorageViewModel
+import java.io.ByteArrayOutputStream
 
 class Profile : Fragment() {
     private val TAG = "ChatApp Profile"
+    private val PICK_IMAGE_REQUEST = 43
     private lateinit var authViewModel: AuthViewModel
     private lateinit var firestoreViewModel: FirestoreViewModel
+    private lateinit var storageViewModel: StorageViewModel
+
+    lateinit var uid: String
+    lateinit var id: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,8 +42,7 @@ class Profile : Fragment() {
         super.onActivityCreated(savedInstanceState)
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         firestoreViewModel = ViewModelProviders.of(this).get(FirestoreViewModel::class.java)
-        lateinit var uid: String
-        lateinit var id: String
+        storageViewModel = ViewModelProviders.of(this).get(StorageViewModel::class.java)
 
         firestoreViewModel.getUser()
         firestoreViewModel.fetchedUser!!.observe(viewLifecycleOwner, Observer {
@@ -103,6 +115,10 @@ class Profile : Fragment() {
                 }
             })
         }
+
+        image_view.setOnClickListener {
+            takePictureIntent()
+        }
     }
 
     fun logOut() {
@@ -114,5 +130,29 @@ class Profile : Fragment() {
                 findNavController().navigate(R.id.profile_to_login)
             }
         })
+    }
+
+    private fun takePictureIntent() {
+        println("clock")
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { pictureIntent ->
+            pictureIntent.resolveActivity(activity?.packageManager!!)?.also {
+                startActivityForResult(pictureIntent, PICK_IMAGE_REQUEST)
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST) {
+            val imgBitmap = data?.extras?.get("data") as Bitmap
+            storageViewModel.uploadImage(imgBitmap, uid)
+            storageViewModel.imageUploaded!!.observe(viewLifecycleOwner, Observer {
+                if (it.response == "") {
+                    image_view.setImageBitmap(it.img)
+                } else {
+                    Log.d(TAG, it.response)
+                }
+            })
+        }
     }
 }
