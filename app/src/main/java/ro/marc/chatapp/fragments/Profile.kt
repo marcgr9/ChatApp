@@ -48,7 +48,7 @@ class Profile : Fragment() {
 
         editfriendship.setOnClickListener {
             val text = uidEditText.text.toString()
-            val modee = mode.text.toString()
+            val modee: String = mode.text.toString()
             val actionn = action.text.toString()
             firestoreViewModel.getUser(text)
             firestoreViewModel.fetchedOtherUser!!.observe(viewLifecycleOwner, Observer { user ->

@@ -1,6 +1,7 @@
 package ro.marc.chatapp.utils
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
@@ -34,47 +35,32 @@ class FirestoreRepository {
         // 0 - user-ul i-a trimis cerere
         //-1 - user-ul a primit cerere
         //-2 - nimic
-        val response = MutableLiveData<Int>(-2)
-        //
-        // TODO redo this part because the observer will always get called from here,
-        //  when initializing the mlb, and then again after the checks
+        val response = MutableLiveData<Int>()
 
         friendsRef.document(uidUser).collection(friendsWithC).document(uidFriend).get()
-            .addOnSuccessListener {
-                if (it.exists()) {
-                    response.value = 1
-                }
+            .addOnSuccessListener { it1 ->
+                friendsRef.document(uidUser).collection(pendingSentRequestsC).document(uidFriend).get()
+                    .addOnSuccessListener { it2 ->
+                        friendsRef.document(uidUser).collection(pendingReceivedRequestsC).document(uidFriend).get()
+                            .addOnSuccessListener { it3 ->
+                                if (!(it1.exists() || it2.exists() || it3.exists())) response.value = -2
+                                else if (it1.exists()) response.value = 1
+                                else if (it2.exists()) response.value = 0
+                                else if (it3.exists()) response.value = -1
+                            }.addOnFailureListener {
+                                Log.d(TAG, "eroare la verificare prietenie (-1): ${it.message}")
+                            }
+                    }.addOnFailureListener {
+                        Log.d(TAG, "eroare la verificare prietenie (0): ${it.message}")
+                    }
             }.addOnFailureListener {
-                Log.d(TAG, "eroare la verificare prietenie (1): $it")
+                Log.d(TAG, "eroare la verificare prietenie (1): ${it.message}")
             }
-
-        friendsRef.document(uidUser).collection(pendingSentRequestsC).document(uidFriend).get()
-            .addOnSuccessListener {
-                if (it.exists()) {
-                    response.value = 0
-                }
-            }.addOnFailureListener {
-                Log.d(TAG, "eroare la verificare prietenie (0): $it")
-            }
-
-
-        friendsRef.document(uidUser).collection(pendingReceivedRequestsC).document(uidFriend).get()
-            .addOnSuccessListener {
-                if (it.exists()) {
-                    response.value = -1
-                }
-            }.addOnFailureListener {
-                Log.d(TAG, "eroare la verificare prietenie (-1): $it")
-            }
-
-        rootRef.runBatch {
-
-        }
 
         return response
     }
 
-    fun editFriendship(dataUser: BlockData, dataFriend: BlockData, mode: Int = -2, action: Int = 0): MutableLiveData<String> {
+    fun editFriendship(dataUser: BlockData, dataFriend: BlockData, mode: Int, action: Int): MutableLiveData<String> {
         // nu testam daca sunt blocati pentru ca asta se va face in search
 
         // mode:
@@ -100,14 +86,16 @@ class FirestoreRepository {
                 if (action == 1) { // cerere acceptata
                     it.delete(userRef.collection(pendingReceivedRequestsC).document(dataFriend.uid))
                     it.delete(friendRef.collection(pendingSentRequestsC).document(dataUser.uid))
-                    it.set(userRef.collection(friendsWithC).document(dataFriend.uid), dataFriend)
+                    it.set(
+                        userRef.collection(friendsWithC).document(dataFriend.uid),
+                        dataFriend
+                    )
                     it.set(friendRef.collection(friendsWithC).document(dataUser.uid), dataUser)
                 } else if (action == 0) { // cerere respinsa
                     it.delete(userRef.collection(pendingReceivedRequestsC).document(dataFriend.uid))
                     it.delete(friendRef.collection(pendingSentRequestsC).document(dataUser.uid))
                 }
-
-            } else if (mode == -2) { // trimitem cerere de la user la friend
+            } else { // trimitem cerere de la user la friend
                 it.set(userRef.collection(pendingSentRequestsC).document(dataFriend.uid), dataFriend)
                 it.set(friendRef.collection(pendingReceivedRequestsC).document(dataUser.uid), dataUser)
             }
