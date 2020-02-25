@@ -19,13 +19,40 @@
         android:text="UOCS5Qik5VUahfAxk1519iYpQ7t2"
         />
 
-    <Button
-        android:id="@+id/block"
-        android:layout_marginTop="100dp"
+    <EditText
+        android:id="@+id/mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="(un)block" />
+        android:layout_marginTop="100dp"
+        android:text="1" />
 
+    <EditText
+        android:id="@+id/action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="150dp"
+        android:text="0" />
+
+    <Button
+        android:id="@+id/editfriendship"
+        android:layout_marginTop="200dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="editfriendship" />
+
+    <Button
+        android:id="@+id/checkfriendship"
+        android:layout_marginTop="300dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="checkfriendship" />
+
+    <Button
+        android:id="@+id/block"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="350dp"
+        android:text="(un)block" />
 
 
 </FrameLayout>

@@ -45,4 +45,14 @@ class FirestoreViewModel: ViewModel() {
     fun checkIfProfileCompleted(uid: String) {
         profileCompleted = firestoreRepository.userHasProfileCompleted(uid)
     }
+
+    var friendshipStatus: LiveData<Int>? = null
+    fun checkFriendship(uidUser: String, uidFriend: String) {
+        friendshipStatus = firestoreRepository.checkFriendshipStatus(uidUser, uidFriend)
+    }
+
+    var changedFriendship: LiveData<String>? = null
+    fun changeFriendship(user: BlockData, friend: BlockData, mode: Int, action: Int) {
+        changedFriendship = firestoreRepository.editFriendship(user, friend, mode, action)
+    }
 }

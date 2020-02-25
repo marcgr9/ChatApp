@@ -46,6 +46,41 @@ class Profile : Fragment() {
             logOut()
         }
 
+        editfriendship.setOnClickListener {
+            val text = uidEditText.text.toString()
+            val modee: String = mode.text.toString()
+            val actionn = action.text.toString()
+            firestoreViewModel.getUser(text)
+            firestoreViewModel.fetchedOtherUser!!.observe(viewLifecycleOwner, Observer { user ->
+                if (user.uid != "") {
+                    firestoreViewModel.changeFriendship(
+                        BlockData(uid, id),
+                        BlockData(user.uid, user.id!!),
+                        modee.toInt(),
+                        actionn.toInt()
+                    )
+                    firestoreViewModel.changedFriendship!!.observe(viewLifecycleOwner, Observer { resp ->
+                            Log.d(TAG, "changedfriendship: $resp")
+                    })
+                }
+            })
+        }
+
+        checkfriendship.setOnClickListener {
+            val text = uidEditText.text.toString()
+            firestoreViewModel.getUser(text)
+            firestoreViewModel.fetchedOtherUser!!.observe(viewLifecycleOwner, Observer { user ->
+                if (user.uid != "") {
+                    firestoreViewModel.checkFriendship(uid, user.uid)
+                    firestoreViewModel.friendshipStatus!!.observe(
+                        viewLifecycleOwner,
+                        Observer { mode ->
+                            Log.d(TAG, "mode = $mode")
+                        })
+                }
+            })
+        }
+
         block.setOnClickListener {
             val text = uidEditText.text.toString()
             firestoreViewModel.getUser(text)
