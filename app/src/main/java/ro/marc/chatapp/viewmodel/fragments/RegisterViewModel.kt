@@ -24,8 +24,12 @@ class RegisterViewModel(
     val isSuccessful: LiveData<RegisterModel>
         get() = _isSuccessful
 
+    val clicked: LiveData<Boolean>
+        get() = _clicked
+
     private val _errors = MutableLiveData<ArrayList<CredentialErrors?>>()
     private val _isSuccessful = MutableLiveData<RegisterModel>()
+    private val _clicked = MutableLiveData<Boolean>()
 
     init {
         _errors.value = null
@@ -55,6 +59,10 @@ class RegisterViewModel(
         } else {
             _errors.value = err
         }
+    }
+
+    fun onProfileImageClicked(clicked: Boolean) {
+        _clicked.value = clicked
     }
 
     fun setData(data: RegisterModel) {

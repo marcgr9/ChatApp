@@ -1,6 +1,7 @@
 package ro.marc.chatapp.utils
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
@@ -13,13 +14,13 @@ class StorageRepository {
     private val TAG = "ChatApp StorageRepository"
 
     private val rootRef = FirebaseStorage.getInstance().reference
+    private val storageRef = rootRef.child("pics")
 
     fun uploadImage(img: Bitmap, uid: String): MutableLiveData<ImageData> {
         val response = MutableLiveData<ImageData>()
 
         val baos = ByteArrayOutputStream()
-        val storageRef = rootRef
-            .child("pics/$uid")
+        val storageRef = storageRef.child(uid)
         img.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val image = baos.toByteArray()
 
@@ -35,6 +36,19 @@ class StorageRepository {
                     }
             }.addOnFailureListener {
                 response.value = ImageData(null, it.message!!)
+            }
+
+        return response
+    }
+
+    fun checkIfImageExists(uid: String): MutableLiveData<Uri?> {
+        val response = MutableLiveData<Uri?>()
+
+        storageRef.child(uid).downloadUrl
+            .addOnSuccessListener {
+                response.value = it
+            }.addOnFailureListener {
+                response.value = null
             }
 
         return response

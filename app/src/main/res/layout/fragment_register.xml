@@ -8,6 +8,10 @@
         <variable
             name="registerViewModel"
             type="ro.marc.chatapp.viewmodel.fragments.RegisterViewModel" />
+
+        <variable
+            name="profileImageUri"
+            type="android.net.Uri" />
     </data>
 
     <ScrollView
@@ -34,7 +38,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_conversion_absoluteHeight="63dp"
-                tools:layout_conversion_absoluteWidth="72dp" />
+                tools:layout_conversion_absoluteWidth="72dp"
+                app:profileImage="@{profileImageUri}"
+                android:onClick="@{() -> registerViewModel.onProfileImageClicked(true)}"/>
 
             <TextView
                 android:id="@+id/titlu"

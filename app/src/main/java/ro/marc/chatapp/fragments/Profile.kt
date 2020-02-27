@@ -2,9 +2,12 @@ package ro.marc.chatapp.fragments
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,15 +16,20 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.fragment_profile.*
 import ro.marc.chatapp.R
+import ro.marc.chatapp.databinding.FragmentRegisterBinding
 import ro.marc.chatapp.model.db.BlockData
+import ro.marc.chatapp.utils.BindingAdapters
 import ro.marc.chatapp.viewmodel.db.AuthViewModel
 import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
 import ro.marc.chatapp.viewmodel.db.StorageViewModel
 import java.io.ByteArrayOutputStream
+
+
 
 class Profile : Fragment() {
     private val TAG = "ChatApp Profile"
@@ -51,6 +59,13 @@ class Profile : Fragment() {
                 uid = it.uid
                 id = it.id!!
                 Log.d(TAG, "$uid si $id")
+
+                storageViewModel.checkIfImageExists(uid)
+                storageViewModel.imageExists!!.observe(viewLifecycleOwner, Observer { img ->
+                    if (img != null) {
+                        //BindingAdapters.loadImage(image_view, img)
+                    }
+                })
             } else profile.text = getString(R.string.general_error)
         })
 
@@ -134,18 +149,23 @@ class Profile : Fragment() {
 
     private fun takePictureIntent() {
         println("clock")
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { pictureIntent ->
-            pictureIntent.resolveActivity(activity?.packageManager!!)?.also {
-                startActivityForResult(pictureIntent, PICK_IMAGE_REQUEST)
-            }
+        Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.INTERNAL_CONTENT_URI
+        ).also {
+            startActivityForResult(it, PICK_IMAGE_REQUEST)
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST) {
-            val imgBitmap = data?.extras?.get("data") as Bitmap
-            storageViewModel.uploadImage(imgBitmap, uid)
+            val imgUri = data!!.data
+
+            val source = ImageDecoder.createSource(activity!!.contentResolver, imgUri!!)
+            val bitmap = ImageDecoder.decodeBitmap(source)
+
+            storageViewModel.uploadImage(bitmap, uid)
             storageViewModel.imageUploaded!!.observe(viewLifecycleOwner, Observer {
                 if (it.response == "") {
                     image_view.setImageBitmap(it.img)

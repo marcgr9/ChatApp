@@ -1,6 +1,11 @@
 package ro.marc.chatapp.fragments
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,6 +14,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_register.*
 import ro.marc.chatapp.R
 import ro.marc.chatapp.viewmodel.fragments.RegisterViewModel
@@ -18,10 +24,13 @@ import ro.marc.chatapp.model.fragments.RegisterModel
 import ro.marc.chatapp.utils.Utils
 import ro.marc.chatapp.viewmodel.db.AuthViewModel
 import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
+import ro.marc.chatapp.viewmodel.db.StorageViewModel
 import ro.marc.chatapp.viewmodel.factory.RegisterViewModelFactory
 
 class Register : Fragment() {
     private val TAG = "ChatApp Register"
+
+    private val PICK_IMAGE_REQUEST = 43
 
     private lateinit var binding: FragmentRegisterBinding
     private lateinit var authViewModel: AuthViewModel
@@ -30,6 +39,7 @@ class Register : Fragment() {
     private var emailFromLogin: String? = null
     private var nameFromLogin: String? = null
     private var uidFromLogin: String? = null
+    private var profileImage: Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +48,7 @@ class Register : Fragment() {
 
         binding = FragmentRegisterBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
+        binding.profileImageUri = null
 
         return binding.root
     }
@@ -69,6 +80,14 @@ class Register : Fragment() {
 
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         firestoreViewModel = ViewModelProviders.of(this).get(FirestoreViewModel::class.java)
+
+
+        viewModel.clicked.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                selectPictureIntent()
+                viewModel.onProfileImageClicked(false)
+            }
+        })
 
         viewModel.errors.observe(viewLifecycleOwner, Observer {
             // ca sa nu intre cand e initializat livedata-ul in vm
@@ -114,8 +133,6 @@ class Register : Fragment() {
                 }
             } else errField.text = getString(R.string.id_not_unique)
         })
-
-
     }
 
     private fun userAuthIsCreated(): Boolean {
@@ -147,8 +164,45 @@ class Register : Fragment() {
         firestoreViewModel.createdFirestoreUser!!.observe(viewLifecycleOwner, Observer {
             if (it.error == null) {
                 Log.d(TAG, "creat user in firestore: ${it.uid}")
-                findNavController().navigate(R.id.register_to_profile)
+                
+                val source = ImageDecoder.createSource(activity!!.contentResolver, profileImage!!)
+                val bitmap = ImageDecoder.decodeBitmap(source)
+
+                uploadImage(it.uid!!, bitmap)
             } else errField.text = it.error
+        })
+    }
+
+    private fun selectPictureIntent() {
+        Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.INTERNAL_CONTENT_URI
+        ).also {
+            startActivityForResult(it, PICK_IMAGE_REQUEST)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(TAG, "maaarc $resultCode $requestCode ${data != null}")
+        if (requestCode == PICK_IMAGE_REQUEST) {
+            println("wsf" + data!!.data.toString())
+            profileImage = data!!.data
+
+            binding.profileImageUri = profileImage
+            Log.d(TAG, binding.profileImageUri.toString())
+            binding.executePendingBindings()
+        }
+    }
+
+    fun uploadImage(uid: String, bitmap: Bitmap) {
+        val storageViewModel: StorageViewModel = ViewModelProviders.of(this).get(StorageViewModel::class.java)
+
+        storageViewModel.uploadImage(bitmap, uid)
+        storageViewModel.imageUploaded!!.observe(viewLifecycleOwner, Observer {
+            if (it.response == "") {
+                findNavController().navigate(R.id.register_to_profile)
+            }
         })
     }
 

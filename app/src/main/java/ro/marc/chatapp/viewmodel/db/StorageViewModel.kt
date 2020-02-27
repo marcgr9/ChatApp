@@ -1,6 +1,7 @@
 package ro.marc.chatapp.viewmodel.db
 
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ro.marc.chatapp.model.db.ImageData
@@ -12,5 +13,9 @@ class StorageViewModel: ViewModel() {
     var imageUploaded: MutableLiveData<ImageData>? = null
     fun uploadImage(img: Bitmap, uid: String) {
         imageUploaded = storageRepository.uploadImage(img, uid)
+    }
+    var imageExists: MutableLiveData<Uri?>? = null
+    fun checkIfImageExists(uid: String) {
+        imageExists = storageRepository.checkIfImageExists(uid)
     }
 }
