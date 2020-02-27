@@ -47,8 +47,12 @@ class Register : Fragment() {
     ): View? {
 
         binding = FragmentRegisterBinding.inflate(inflater, container, false)
+        profileImage = Uri.parse("https://firebasestorage.googleapis.com/v0/b/chatapp-ccaad.appspot.com/o/pics%2Fdefault.png?alt=media&token=3f7550a6-d8f4-41f1-bc0b-9d0f8f5e539e")
+        binding.profileImageUri = profileImage
+
+        Log.d(TAG, binding.profileImageUri.toString())
+
         binding.executePendingBindings()
-        binding.profileImageUri = null
 
         return binding.root
     }
@@ -80,7 +84,6 @@ class Register : Fragment() {
 
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         firestoreViewModel = ViewModelProviders.of(this).get(FirestoreViewModel::class.java)
-
 
         viewModel.clicked.observe(viewLifecycleOwner, Observer {
             if (it == true) {
@@ -164,11 +167,13 @@ class Register : Fragment() {
         firestoreViewModel.createdFirestoreUser!!.observe(viewLifecycleOwner, Observer {
             if (it.error == null) {
                 Log.d(TAG, "creat user in firestore: ${it.uid}")
-                
-                val source = ImageDecoder.createSource(activity!!.contentResolver, profileImage!!)
-                val bitmap = ImageDecoder.decodeBitmap(source)
-
-                uploadImage(it.uid!!, bitmap)
+                if (profileImage.toString() != "https://firebasestorage.googleapis.com/v0/b/chatapp-ccaad.appspot.com/o/pics%2Fdefault.png?alt=media&token=3f7550a6-d8f4-41f1-bc0b-9d0f8f5e539e") {
+                    val source = ImageDecoder.createSource(activity!!.contentResolver, profileImage!!)
+                    val bitmap = ImageDecoder.decodeBitmap(source)
+                    uploadImage(it.uid!!, bitmap)
+                } else {
+                    findNavController().navigate(R.id.register_to_profile)
+                }
             } else errField.text = it.error
         })
     }
@@ -184,13 +189,12 @@ class Register : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "maaarc $resultCode $requestCode ${data != null}")
         if (requestCode == PICK_IMAGE_REQUEST) {
-            println("wsf" + data!!.data.toString())
             profileImage = data!!.data
-
             binding.profileImageUri = profileImage
+
             Log.d(TAG, binding.profileImageUri.toString())
+
             binding.executePendingBindings()
         }
     }
@@ -201,6 +205,15 @@ class Register : Fragment() {
         storageViewModel.uploadImage(bitmap, uid)
         storageViewModel.imageUploaded!!.observe(viewLifecycleOwner, Observer {
             if (it.response == "") {
+                Log.d(TAG, it.img.toString())
+
+                firestoreViewModel.setImage(uid, it.img.toString())
+                firestoreViewModel.imageUpdated!!.observe(viewLifecycleOwner, Observer {imgUpdated ->
+                    if (imgUpdated.isNotBlank()) {
+                        Log.d(TAG, imgUpdated)
+                    }
+                })
+
                 findNavController().navigate(R.id.register_to_profile)
             }
         })

@@ -1,6 +1,6 @@
 package ro.marc.chatapp.model.db
 
-import android.graphics.Bitmap
+import android.net.Uri
 
-data class ImageData(val img: Bitmap?,
+data class ImageData(val img: Uri?,
                      val response: String)

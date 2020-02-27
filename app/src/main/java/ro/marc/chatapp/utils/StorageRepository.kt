@@ -27,28 +27,14 @@ class StorageRepository {
         storageRef.putBytes(image)
             .addOnSuccessListener {
                 storageRef.downloadUrl
-                    .addOnSuccessListener { urlTask ->
-                        urlTask.let {
-                            response.value = ImageData(img, "")
-                        }
+                    .addOnSuccessListener { uri ->
+                        Log.d(TAG, uri.toString())
+                        response.value = ImageData(uri, "")
                     }.addOnFailureListener { ex ->
                         response.value = ImageData(null, ex.message!!)
                     }
             }.addOnFailureListener {
                 response.value = ImageData(null, it.message!!)
-            }
-
-        return response
-    }
-
-    fun checkIfImageExists(uid: String): MutableLiveData<Uri?> {
-        val response = MutableLiveData<Uri?>()
-
-        storageRef.child(uid).downloadUrl
-            .addOnSuccessListener {
-                response.value = it
-            }.addOnFailureListener {
-                response.value = null
             }
 
         return response

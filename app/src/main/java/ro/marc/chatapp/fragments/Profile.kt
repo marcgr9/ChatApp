@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.fragment_profile.*
 import ro.marc.chatapp.R
+import ro.marc.chatapp.databinding.FragmentProfileBinding
 import ro.marc.chatapp.databinding.FragmentRegisterBinding
 import ro.marc.chatapp.model.db.BlockData
 import ro.marc.chatapp.utils.BindingAdapters
@@ -38,13 +39,20 @@ class Profile : Fragment() {
     private lateinit var firestoreViewModel: FirestoreViewModel
     private lateinit var storageViewModel: StorageViewModel
 
+    private lateinit var binding: FragmentProfileBinding
+
     lateinit var uid: String
     lateinit var id: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_profile, container, false)
+    ): View? {
+        binding = FragmentProfileBinding.inflate(inflater, container, false)
+        binding.executePendingBindings()
+
+        return binding.root
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -60,12 +68,7 @@ class Profile : Fragment() {
                 id = it.id!!
                 Log.d(TAG, "$uid si $id")
 
-                storageViewModel.checkIfImageExists(uid)
-                storageViewModel.imageExists!!.observe(viewLifecycleOwner, Observer { img ->
-                    if (img != null) {
-                        //BindingAdapters.loadImage(image_view, img)
-                    }
-                })
+                binding.pictureUri = Uri.parse(it.profileUri)
             } else profile.text = getString(R.string.general_error)
         })
 
@@ -148,7 +151,6 @@ class Profile : Fragment() {
     }
 
     private fun takePictureIntent() {
-        println("clock")
         Intent(
             Intent.ACTION_PICK,
             MediaStore.Images.Media.INTERNAL_CONTENT_URI
@@ -168,7 +170,7 @@ class Profile : Fragment() {
             storageViewModel.uploadImage(bitmap, uid)
             storageViewModel.imageUploaded!!.observe(viewLifecycleOwner, Observer {
                 if (it.response == "") {
-                    image_view.setImageBitmap(it.img)
+                    Glide.with(this).load(it.img).into(image_view)
                 } else {
                     Log.d(TAG, it.response)
                 }

@@ -40,6 +40,7 @@
                 tools:layout_conversion_absoluteHeight="63dp"
                 tools:layout_conversion_absoluteWidth="72dp"
                 app:profileImage="@{profileImageUri}"
+                android:scaleType="fitXY"
                 android:onClick="@{() -> registerViewModel.onProfileImageClicked(true)}"/>
 
             <TextView

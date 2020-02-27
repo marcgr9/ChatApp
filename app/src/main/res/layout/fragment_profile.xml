@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+
+<data>
+    <variable
+        name="pictureUri"
+        type="android.net.Uri" />
+</data>
+
+<FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.Profile">
@@ -62,7 +70,9 @@
         android:layout_gravity="bottom"
         android:contentDescription="TODO"
         tools:visibility="visible"
-        android:src="@drawable/icon"/>
+        android:src="@drawable/icon"
+        profileImage="@{pictureUri}"/>
 
 
 </FrameLayout>
+</layout>

@@ -14,8 +14,4 @@ class StorageViewModel: ViewModel() {
     fun uploadImage(img: Bitmap, uid: String) {
         imageUploaded = storageRepository.uploadImage(img, uid)
     }
-    var imageExists: MutableLiveData<Uri?>? = null
-    fun checkIfImageExists(uid: String) {
-        imageExists = storageRepository.checkIfImageExists(uid)
-    }
 }

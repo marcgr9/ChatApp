@@ -55,4 +55,9 @@ class FirestoreViewModel: ViewModel() {
     fun changeFriendship(user: BlockData, friend: BlockData, mode: Int, action: Int) {
         changedFriendship = firestoreRepository.editFriendship(user, friend, mode, action)
     }
+
+    var imageUpdated: LiveData<String>? = null
+    fun setImage(uid: String, uri: String) {
+        imageUpdated = firestoreRepository.setImage(uid, uri)
+    }
 }
