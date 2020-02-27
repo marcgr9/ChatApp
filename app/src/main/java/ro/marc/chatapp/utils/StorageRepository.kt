@@ -39,4 +39,17 @@ class StorageRepository {
 
         return response
     }
+
+    fun deletePicture(uid: String): MutableLiveData<String> {
+        val response = MutableLiveData<String>()
+
+        storageRef.child(uid).delete()
+            .addOnCompleteListener {
+                response.value = ""
+            }.addOnFailureListener {
+                response.value = it.message
+            }
+
+        return response
+    }
 }

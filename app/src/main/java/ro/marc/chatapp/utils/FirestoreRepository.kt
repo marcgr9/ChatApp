@@ -19,6 +19,7 @@ class FirestoreRepository {
     private val idsRef: CollectionReference = rootRef.collection("ids")
     private val blocksRef: CollectionReference = rootRef.collection("blocks")
     private val friendsRef: CollectionReference = rootRef.collection("friends")
+    private val unusedFilesRef: CollectionReference = rootRef.collection("unusedFiles")
 
     private val friendsWithC = "friendsWith"
     private val pendingSentRequestsC = "pendingSentRequests"
@@ -282,6 +283,20 @@ class FirestoreRepository {
                 response.value = ""
             }.addOnFailureListener {
                 response.value = it.message
+            }
+
+        return response
+    }
+
+    fun addUnusedImage(uid: String): MutableLiveData<String> {
+        val response = MutableLiveData<String>()
+
+        unusedFilesRef.document(uid).set(hashMapOf("uid" to uid))
+            .addOnCompleteListener {
+                response.value = ""
+            }.addOnFailureListener {
+                response.value = it.message
+                Log.d(TAG, "eroare la adaugare poza nefolosita: ${it.message}")
             }
 
         return response

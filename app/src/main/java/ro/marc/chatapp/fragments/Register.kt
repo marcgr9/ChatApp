@@ -211,6 +211,21 @@ class Register : Fragment() {
                 firestoreViewModel.imageUpdated!!.observe(viewLifecycleOwner, Observer {imgUpdated ->
                     if (imgUpdated.isNotBlank()) {
                         Log.d(TAG, imgUpdated)
+
+                        // TODO recheck at some point later in the app flow (profile settings maybe)
+                        //  if the file exists, and if so try again to set the uri
+                        storageViewModel.deletePicture(uid)
+                        storageViewModel.deletedPicture!!.observe(viewLifecycleOwner, Observer {del ->
+                            if (del.isNotBlank()) {
+                                // for periodic deletion?
+                                firestoreViewModel.addUnusedFile(uid)
+                                firestoreViewModel.fileAdded!!.observe(viewLifecycleOwner, Observer {
+                                    if (it.isNotBlank()) {
+                                        ///
+                                    }
+                                })
+                            }
+                        })
                     }
                 })
 

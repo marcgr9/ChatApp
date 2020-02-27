@@ -60,4 +60,9 @@ class FirestoreViewModel: ViewModel() {
     fun setImage(uid: String, uri: String) {
         imageUpdated = firestoreRepository.setImage(uid, uri)
     }
+
+    var fileAdded: LiveData<String>? = null
+    fun addUnusedFile(uid: String) {
+        fileAdded = firestoreRepository.addUnusedImage(uid)
+    }
 }

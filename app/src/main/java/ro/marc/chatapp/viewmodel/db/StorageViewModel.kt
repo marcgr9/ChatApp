@@ -14,4 +14,9 @@ class StorageViewModel: ViewModel() {
     fun uploadImage(img: Bitmap, uid: String) {
         imageUploaded = storageRepository.uploadImage(img, uid)
     }
+
+    var deletedPicture: MutableLiveData<String>? = null
+    fun deletePicture(uid: String) {
+        deletedPicture = storageRepository.deletePicture(uid)
+    }
 }
