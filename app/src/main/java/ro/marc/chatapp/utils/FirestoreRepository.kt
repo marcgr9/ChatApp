@@ -1,13 +1,11 @@
 package ro.marc.chatapp.utils
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.*
 import ro.marc.chatapp.model.db.AuthModel
 import ro.marc.chatapp.model.db.BlockData
 import ro.marc.chatapp.model.db.FirestoreUser
@@ -21,6 +19,7 @@ class FirestoreRepository {
     private val idsRef: CollectionReference = rootRef.collection("ids")
     private val blocksRef: CollectionReference = rootRef.collection("blocks")
     private val friendsRef: CollectionReference = rootRef.collection("friends")
+    private val unusedFilesRef: CollectionReference = rootRef.collection("unusedFiles")
 
     private val friendsWithC = "friendsWith"
     private val pendingSentRequestsC = "pendingSentRequests"
@@ -250,12 +249,12 @@ class FirestoreRepository {
 
     fun isIdAvailable(id: String): MutableLiveData<Boolean> {
         val response = MutableLiveData<Boolean>()
-        response.value = true
 
         idsRef.document(id).get()
             .addOnCompleteListener {
                 response.value = it.result!!.exists()
             }.addOnFailureListener {
+                response.value = true
                 Log.d(TAG, "eroare la veriricare id unic: ${it.message}")
             }
 
@@ -271,6 +270,33 @@ class FirestoreRepository {
                 response.value = it.result!!.exists()
             }.addOnFailureListener {
                 Log.d(TAG, "eroare la verificare profil complet: ${it.message}")
+            }
+
+        return response
+    }
+
+    fun setImage(uid: String, uri: String): MutableLiveData<String> {
+        val response = MutableLiveData<String>()
+
+        usersRef.document(uid).update("profileUri", uri)
+            .addOnSuccessListener {
+                response.value = ""
+            }.addOnFailureListener {
+                response.value = it.message
+            }
+
+        return response
+    }
+
+    fun addUnusedImage(uid: String): MutableLiveData<String> {
+        val response = MutableLiveData<String>()
+
+        unusedFilesRef.document(uid).set(hashMapOf("uid" to uid))
+            .addOnCompleteListener {
+                response.value = ""
+            }.addOnFailureListener {
+                response.value = it.message
+                Log.d(TAG, "eroare la adaugare poza nefolosita: ${it.message}")
             }
 
         return response

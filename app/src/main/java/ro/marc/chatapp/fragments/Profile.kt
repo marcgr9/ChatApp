@@ -1,6 +1,13 @@
 package ro.marc.chatapp.fragments
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Base64
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,28 +16,49 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.fragment_profile.*
 import ro.marc.chatapp.R
+import ro.marc.chatapp.databinding.FragmentProfileBinding
+import ro.marc.chatapp.databinding.FragmentRegisterBinding
 import ro.marc.chatapp.model.db.BlockData
+import ro.marc.chatapp.utils.BindingAdapters
 import ro.marc.chatapp.viewmodel.db.AuthViewModel
 import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
+import ro.marc.chatapp.viewmodel.db.StorageViewModel
+import java.io.ByteArrayOutputStream
+
+
 
 class Profile : Fragment() {
     private val TAG = "ChatApp Profile"
+    private val PICK_IMAGE_REQUEST = 43
     private lateinit var authViewModel: AuthViewModel
     private lateinit var firestoreViewModel: FirestoreViewModel
+    private lateinit var storageViewModel: StorageViewModel
+
+    private lateinit var binding: FragmentProfileBinding
+
+    lateinit var uid: String
+    lateinit var id: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_profile, container, false)
+    ): View? {
+        binding = FragmentProfileBinding.inflate(inflater, container, false)
+        binding.executePendingBindings()
+
+        return binding.root
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
         firestoreViewModel = ViewModelProviders.of(this).get(FirestoreViewModel::class.java)
-        lateinit var uid: String
-        lateinit var id: String
+        storageViewModel = ViewModelProviders.of(this).get(StorageViewModel::class.java)
 
         firestoreViewModel.getUser()
         firestoreViewModel.fetchedUser!!.observe(viewLifecycleOwner, Observer {
@@ -39,6 +67,8 @@ class Profile : Fragment() {
                 uid = it.uid
                 id = it.id!!
                 Log.d(TAG, "$uid si $id")
+
+                binding.pictureUri = Uri.parse(it.profileUri)
             } else profile.text = getString(R.string.general_error)
         })
 
@@ -103,6 +133,10 @@ class Profile : Fragment() {
                 }
             })
         }
+
+        image_view.setOnClickListener {
+            takePictureIntent()
+        }
     }
 
     fun logOut() {
@@ -114,5 +148,33 @@ class Profile : Fragment() {
                 findNavController().navigate(R.id.profile_to_login)
             }
         })
+    }
+
+    private fun takePictureIntent() {
+        Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.INTERNAL_CONTENT_URI
+        ).also {
+            startActivityForResult(it, PICK_IMAGE_REQUEST)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST) {
+            val imgUri = data!!.data
+
+            val source = ImageDecoder.createSource(activity!!.contentResolver, imgUri!!)
+            val bitmap = ImageDecoder.decodeBitmap(source)
+
+            storageViewModel.uploadImage(bitmap, uid)
+            storageViewModel.imageUploaded!!.observe(viewLifecycleOwner, Observer {
+                if (it.response == "") {
+                    Glide.with(this).load(it.img).into(image_view)
+                } else {
+                    Log.d(TAG, it.response)
+                }
+            })
+        }
     }
 }
