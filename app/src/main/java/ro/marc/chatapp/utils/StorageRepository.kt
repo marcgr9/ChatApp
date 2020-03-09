@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.android.synthetic.main.fragment_profile.*
 import ro.marc.chatapp.model.db.ImageData
 import java.io.ByteArrayOutputStream
 

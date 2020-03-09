@@ -21,16 +21,6 @@ class AuthRepository {
     private val facebookLoginManager: LoginManager = LoginManager.getInstance()
     private lateinit var googleSignInClient: GoogleSignInClient
 
-    fun getUser(): MutableLiveData<String> {
-        val user = MutableLiveData<String>()
-
-        if (firebaseAuth.currentUser != null) {
-            user.value = firebaseAuth.currentUser!!.uid
-        } else user.value = ""
-
-        return user
-    }
-
     fun logOut(context: Activity): MutableLiveData<String> {
         val loggedOut = MutableLiveData<String>()
 
@@ -160,5 +150,20 @@ class AuthRepository {
 
         }
         return user
+    }
+
+    fun updatePassword(password: String): MutableLiveData<String> {
+        val response = MutableLiveData<String>()
+
+        firebaseAuth.currentUser!!.updatePassword(password)
+            .addOnSuccessListener {
+                response.value = ""
+                Log.d(TAG, "reusit")
+            }.addOnFailureListener {
+                response.value = it.message
+                Log.d(TAG, "esuat cu ${it.message}")
+            }
+
+        return response
     }
 }

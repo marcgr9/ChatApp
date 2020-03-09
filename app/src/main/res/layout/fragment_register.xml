@@ -11,7 +11,7 @@
 
         <variable
             name="profileImageUri"
-            type="android.net.Uri" />
+            type="String" />
     </data>
 
     <ScrollView
@@ -48,6 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/register"
+                android:visibility="@{registerViewModel.titleVisibility}"
                 android:textAlignment="center"
                 android:textColor="#000000"
                 android:textIsSelectable="false"
@@ -89,12 +90,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/l_email"
+                android:id="@+id/reg_l_email"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:visibility="@{registerViewModel.visibility}"
+                android:visibility="@{registerViewModel.passwordAndEmailVisibility}"
                 app:boxBackgroundMode="none"
                 app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -105,12 +106,16 @@
                 tools:layout_conversion_absoluteWidth="363dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/email"
+                    android:id="@+id/reg_email"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/email"
                     android:inputType="textEmailAddress"
                     android:text="@={registerViewModel.registerModel.email}"
+                    android:clickable="@{registerViewModel.emailInteractible}"
+                    android:focusableInTouchMode="@{registerViewModel.emailInteractible}"
+                    android:focusable="@{registerViewModel.emailFocusable}"
+                    android:cursorVisible="@{registerViewModel.emailInteractible}"
                     tools:layout_conversion_absoluteHeight="53dp"
                     tools:layout_conversion_absoluteWidth="363dp"
                     tools:layout_editor_absoluteX="24dp"
@@ -127,7 +132,7 @@
                 app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/l_email"
+                app:layout_constraintTop_toBottomOf="@+id/reg_l_email"
                 app:startIconDrawable="@drawable/name"
                 tools:layout_conversion_absoluteHeight="53dp"
                 tools:layout_conversion_absoluteWidth="363dp">
@@ -151,7 +156,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:visibility="@{registerViewModel.visibility}"
+                android:visibility="@{registerViewModel.passwordAndEmailVisibility}"
                 app:boxBackgroundMode="none"
                 app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -229,6 +234,14 @@
                 app:layout_constraintTop_toBottomOf="@+id/errField"
                 tools:layout_conversion_absoluteHeight="56dp"
                 tools:layout_conversion_absoluteWidth="363dp" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="logout"
+                bind:layout_editor_absoluteX="4dp"
+                bind:layout_editor_absoluteY="0dp" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,12 +1,8 @@
 package ro.marc.chatapp.utils
 
-import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
-import ro.marc.chatapp.model.db.AuthModel
 import ro.marc.chatapp.model.db.BlockData
 import ro.marc.chatapp.model.db.FirestoreUser
 
@@ -28,6 +24,24 @@ class FirestoreRepository {
     private val blockedBy = "blockedBy"
     private val blocking = "blocking"
 
+    fun getByName(input: String): MutableLiveData<String> {
+        val response = MutableLiveData<String>()
+
+        usersRef.whereEqualTo("id", input).get()
+            .addOnSuccessListener {
+                var output = ""
+                val docs =  it.toObjects(FirestoreUser::class.java)
+                docs.forEach { user ->
+                    output += user.name + "\n"
+                }
+                response.value = output
+                Log.d(TAG, response.value)
+            }.addOnFailureListener {
+                response.value = it.message
+            }
+
+        return response
+    }
 
     fun checkFriendshipStatus(uidUser: String, uidFriend: String): MutableLiveData<Int> {
         // 1 - prieteni
@@ -179,72 +193,19 @@ class FirestoreRepository {
         return user
     }
 
-    fun getUser(): MutableLiveData<FirestoreUser> {
-        val user = MutableLiveData<FirestoreUser>()
 
-        /// TODO get uid of user in another way
+    fun createOrUpdateUserInFirestore(user: FirestoreUser): MutableLiveData<String> {
+        val response = MutableLiveData<String>()
 
-        val uid = FirebaseAuth.getInstance().currentUser!!.uid
-
-        val userRef: DocumentReference = usersRef.document(uid)
-        userRef.get().addOnCompleteListener {
-            if (it.isSuccessful) {
-                user.value = it.result!!.toObject(FirestoreUser::class.java)
-            } else {
-                println(it.exception!!.message)
-                user.value = FirestoreUser()
-            }
-        }
-        return user
-    }
-
-    fun createUserInFirestoreIfNotExists(authenticatedUser: FirestoreUser): MutableLiveData<AuthModel> {
-        val uidRef: DocumentReference = usersRef.document(authenticatedUser.uid)
-
-        val newUserMutableLiveData = MutableLiveData<AuthModel>()
-        lateinit var data: AuthModel
-
-        uidRef.get().addOnCompleteListener { uidTask ->
-            if (uidTask.isSuccessful) {
-                val document: DocumentSnapshot? = uidTask.result
-                if (!document!!.exists()) {
-                    rootRef.runBatch {
-                        uidRef.set(authenticatedUser)
-                        idsRef.document(authenticatedUser.id!!).set(hashMapOf("uid" to authenticatedUser.uid))
-
-                    }.addOnCompleteListener {
-                        data = AuthModel(
-                            authenticatedUser.uid,
-                            authenticatedUser.email,
-                            authenticatedUser.name,
-                            null, true
-                        )
-                        newUserMutableLiveData.value = data
-                    }.addOnFailureListener {
-                        data = AuthModel()
-                        data.error = it.message
-                        Log.d(TAG, "eroare la setare date in firestore: ${it.message}")
-                        newUserMutableLiveData.value = data
-                    }
-                } else {
-                    data = AuthModel(
-                        authenticatedUser.uid,
-                        authenticatedUser.email,
-                        authenticatedUser.name,
-                        null,
-                        false
-                    )
-                    newUserMutableLiveData.value = data
-                }
-            } else {
-                data = AuthModel()
-                data.error = uidTask.exception!!.message
-                Log.d(TAG, "eroare la creare in firestore ${uidTask.exception!!.message!!}")
-                newUserMutableLiveData.value = data
+        usersRef.document(user.uid).set(user)
+            .addOnSuccessListener {
+                response.value = ""
+            }.addOnFailureListener {
+                response.value = it.message
             }
 
-        }
-        return newUserMutableLiveData
+
+        return response
     }
 
     fun isIdAvailable(id: String): MutableLiveData<Boolean> {
@@ -300,6 +261,22 @@ class FirestoreRepository {
             }
 
         return response
+    }
+
+    fun updateUser(user: FirestoreUser): MutableLiveData<String> {
+        val response = MutableLiveData<String>()
+
+        rootRef.runBatch {
+            usersRef.document(user.uid).set(user)
+            idsRef.document(user.uid).set(hashMapOf("uid" to user.id!!))
+        }.addOnFailureListener {
+            response.value = it.message
+        }.addOnSuccessListener {
+            response.value = ""
+        }
+
+        return response
+
     }
 
 }

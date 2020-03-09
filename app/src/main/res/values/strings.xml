@@ -11,6 +11,7 @@
     <string name="ERRLogin">Email sau parola invalida</string>
     <string name="id_not_unique">ID-ul e deja folosit de cineva!</string>
     <string name="general_error">A aparut o eroare.</string>
+    <string name="update_profile">UPDATE PROFILE</string>
 
 
     <string name="register">Inregistrare</string>

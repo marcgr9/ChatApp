@@ -41,7 +41,10 @@ class Splash : Fragment() {
 
                     firestoreViewModel.checkIfProfileCompleted(it.uid!!)
                     firestoreViewModel.profileCompleted!!.observe(viewLifecycleOwner, Observer { profileTask ->
-                        if (profileTask == true) findNavController().navigate(R.id.splash_to_profile)
+                        if (profileTask == true) {
+                            val bundle = bundleOf("uid" to it.uid)
+                            findNavController().navigate(R.id.action_splash_to_main, bundle)
+                        }
                         else {
                             val bundle =
                                 bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)

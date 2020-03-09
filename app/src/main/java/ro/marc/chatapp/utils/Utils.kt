@@ -1,11 +1,15 @@
 package ro.marc.chatapp.utils
 
+import android.util.Log
 import android.util.Patterns
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 
 object Utils {
+
+    const val DEFAULT_PROFILE_PICTURE = "https://firebasestorage.googleapis.com/v0/b/chatapp-ccaad.appspot.com/o/pics%2Fdefault.png?alt=media&token=3f7550a6-d8f4-41f1-bc0b-9d0f8f5e539e"
+
     enum class CredentialErrors {
         ERRId, ERREmail, ERRName, ERRPassword, ERRDateFormat, ERRDateAge
     }
@@ -44,7 +48,16 @@ object Utils {
     }
 
     fun checkPassword(password: String?): CredentialErrors? {
+        Log.d("MARC", "parola e $password dar nu profile")
         if (password.isNullOrBlank() || password.length < 6 || !password.matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")))
+            return Utils.CredentialErrors.ERRPassword
+        return null
+    }
+
+    fun checkPasswordForProfile(password: String?): CredentialErrors? {
+        Log.d("MARC", "parola e $password")
+        if (password.isNullOrBlank()) return null
+        else if (password.length < 6 || !password.matches(Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")))
             return Utils.CredentialErrors.ERRPassword
         return null
     }

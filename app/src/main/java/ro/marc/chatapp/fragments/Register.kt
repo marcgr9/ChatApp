@@ -11,10 +11,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.fragment_register.*
 import ro.marc.chatapp.R
 import ro.marc.chatapp.viewmodel.fragments.RegisterViewModel
@@ -26,6 +26,14 @@ import ro.marc.chatapp.viewmodel.db.AuthViewModel
 import ro.marc.chatapp.viewmodel.db.FirestoreViewModel
 import ro.marc.chatapp.viewmodel.db.StorageViewModel
 import ro.marc.chatapp.viewmodel.factory.RegisterViewModelFactory
+
+/// mode:
+/// register
+//           -> create firebase user -> create firestore user doc -> upload & set user profile picture
+/// register with service
+//                                   -> create firestore user doc -> upload & set user profile picture
+/// profile
+//                                   -> update firestore user doc -> upload & set user profile
 
 class Register : Fragment() {
     private val TAG = "ChatApp Register"
@@ -40,6 +48,15 @@ class Register : Fragment() {
     private var nameFromLogin: String? = null
     private var uidFromLogin: String? = null
     private var profileImage: Uri? = null
+    private var initialUser: FirestoreUser = FirestoreUser()
+
+    private var user: FirestoreUser? = null
+
+    private enum class Modes {
+        REGISTER, REGISTER_WITH_SERVICE, PROFILE
+    }
+
+    private var mode: Modes = Modes.REGISTER
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,8 +64,8 @@ class Register : Fragment() {
     ): View? {
 
         binding = FragmentRegisterBinding.inflate(inflater, container, false)
-        profileImage = Uri.parse("https://firebasestorage.googleapis.com/v0/b/chatapp-ccaad.appspot.com/o/pics%2Fdefault.png?alt=media&token=3f7550a6-d8f4-41f1-bc0b-9d0f8f5e539e")
-        binding.profileImageUri = profileImage
+        profileImage = Uri.parse(Utils.DEFAULT_PROFILE_PICTURE)
+        binding.profileImageUri = profileImage.toString()
 
         Log.d(TAG, binding.profileImageUri.toString())
 
@@ -64,12 +81,21 @@ class Register : Fragment() {
         nameFromLogin = arguments?.getString("name")
         uidFromLogin = arguments?.getString("uid")
 
-        val factory = RegisterViewModelFactory(if (userAuthIsCreated()) 1 else 0)
+        if (uidFromLogin != null && emailFromLogin != null) {
+            mode = Modes.REGISTER_WITH_SERVICE
+        } else if (uidFromLogin != null && emailFromLogin == null) {
+            mode = Modes.PROFILE
+        }
+
+        val factory = RegisterViewModelFactory(if (mode == Modes.REGISTER) 0 else if (mode == Modes.REGISTER_WITH_SERVICE) 1 else 2)
 
         val viewModel: RegisterViewModel = ViewModelProviders.of(this, factory).get(
             RegisterViewModel::class.java)
 
-        if (userAuthIsCreated()) {
+        authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
+        firestoreViewModel = ViewModelProviders.of(this).get(FirestoreViewModel::class.java)
+
+        if (mode == Modes.REGISTER_WITH_SERVICE) {
             viewModel.setData(
                 RegisterModel(
                     uidFromLogin!!,
@@ -80,10 +106,37 @@ class Register : Fragment() {
                     ""
                 )
             )
+        } else if (mode == Modes.PROFILE) {
+            registerBtn.text = getString(R.string.update_profile)
+
+            firestoreViewModel.getUser(uidFromLogin!!)
+            firestoreViewModel.fetchedUser!!.observe(viewLifecycleOwner, Observer {
+                if (it.uid != "") {
+                    user = it
+                    val data = RegisterModel(
+                        it.uid,
+                        it.id,
+                        it.email,
+                        "",
+                        it.name,
+                        it.birthday
+                    )
+
+                    initialUser = it
+
+                    viewModel.setData(data)
+
+                    profileImage = Uri.parse(it.profileUri)
+                    binding.profileImageUri = profileImage.toString()
+                    binding.registerViewModel = viewModel
+                }
+            })
         }
 
-        authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
-        firestoreViewModel = ViewModelProviders.of(this).get(FirestoreViewModel::class.java)
+        Log.d(TAG, mode.toString())
+
+
+        button2.setOnClickListener {logOut()}
 
         viewModel.clicked.observe(viewLifecycleOwner, Observer {
             if (it == true) {
@@ -119,28 +172,72 @@ class Register : Fragment() {
 
         viewModel.isSuccessful.observe(viewLifecycleOwner, Observer {
             errField.text = ""
-            register(it)
+            click(it)
         })
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.registerViewModel = viewModel
     }
 
-    fun register(data: RegisterModel) {
+    fun click(data: RegisterModel) {
+        Log.d(TAG, mode.toString())
         firestoreViewModel.checkIfIdAvailable(data.id!!)
         firestoreViewModel.idAvailable!!.observe(viewLifecycleOwner, Observer {
-            if (it == false) {
-                if (userAuthIsCreated()) createFirestoreUser(data)
-                else {
-                    createAuthUser(data)
+            if (it == false || ((it == true) && (mode == Modes.PROFILE) && (data.id == initialUser.id!!))) {
+                when (mode) {
+                    Modes.REGISTER_WITH_SERVICE -> createFirestoreUser(data)
+                    Modes.REGISTER -> createAuthUser(data)
+                    Modes.PROFILE -> updateUser(data)
                 }
             } else errField.text = getString(R.string.id_not_unique)
         })
     }
 
-    private fun userAuthIsCreated(): Boolean {
-        /// e diferit de null doar cand e deschisa pagina ca urmare la google sign up
-        return emailFromLogin != null
+    private fun updateUser(data: RegisterModel) {
+        changePasswordIfDifferent(data.password!!)
+        updateUserFirestoreIfDifferent(data)
+        updateImageIfDifferent()
+
+    }
+
+    fun changePasswordIfDifferent(password: String) {
+        if (!password.isNullOrBlank()) {
+            Log.d(TAG, "schimbare parola")
+            authViewModel.updatePassword(password.toString())
+            authViewModel.updatedPassword!!.observe(viewLifecycleOwner, Observer {
+                if (!it.isNullOrBlank()) errField.text = it
+            })
+        }
+    }
+
+    fun updateUserFirestoreIfDifferent(data: RegisterModel) {
+        val user = FirestoreUser(
+            uidFromLogin!!,
+            data.email,
+            data.name,
+            data.id,
+            data.birthday,
+            profileImage.toString()
+        )
+        if (user.name != initialUser.name || user.id != initialUser.id || user.birthday != initialUser.birthday) {
+            Log.d(TAG, "schimbare doc")
+            firestoreViewModel.createOrUpdateFirestoreUser(user)
+            firestoreViewModel.firestoreUser!!.observe(viewLifecycleOwner, Observer {
+                if (it != "") errField.text = "${errField.text}\n$it"
+            })
+        }
+    }
+
+    fun updateImageIfDifferent() {
+        if (profileImage.toString() != initialUser.profileUri) {
+            Log.d(TAG, "schimbare imagine")
+            val source = ImageDecoder.createSource(
+                activity!!.contentResolver,
+                profileImage!!
+            )
+            val bitmap = ImageDecoder.decodeBitmap(source)
+            uploadImage(uidFromLogin.toString(), bitmap)
+        }
     }
 
     private fun createAuthUser(data: RegisterModel) {
@@ -163,18 +260,20 @@ class Register : Fragment() {
             user.id,
             user.birthday
         )
-        firestoreViewModel.createUserInFirestore(fsUser)
-        firestoreViewModel.createdFirestoreUser!!.observe(viewLifecycleOwner, Observer {
-            if (it.error == null) {
-                Log.d(TAG, "creat user in firestore: ${it.uid}")
-                if (profileImage.toString() != "https://firebasestorage.googleapis.com/v0/b/chatapp-ccaad.appspot.com/o/pics%2Fdefault.png?alt=media&token=3f7550a6-d8f4-41f1-bc0b-9d0f8f5e539e") {
+
+        firestoreViewModel.createOrUpdateFirestoreUser(fsUser)
+        firestoreViewModel.firestoreUser!!.observe(viewLifecycleOwner, Observer {
+            if (it == "") {
+                Log.d(TAG, "creat user in firestore: ${user.uid}")
+                if (profileImage.toString() != Utils.DEFAULT_PROFILE_PICTURE) {
                     val source = ImageDecoder.createSource(activity!!.contentResolver, profileImage!!)
                     val bitmap = ImageDecoder.decodeBitmap(source)
-                    uploadImage(it.uid!!, bitmap)
+                    uploadImage(user.uid!!, bitmap)
                 } else {
-                    findNavController().navigate(R.id.register_to_profile)
+                    val bundle = bundleOf("uid" to user.uid)
+                    findNavController().navigate(R.id.register_self, bundle)
                 }
-            } else errField.text = it.error
+            } else errField.text = it
         })
     }
 
@@ -191,7 +290,7 @@ class Register : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST) {
             profileImage = data!!.data
-            binding.profileImageUri = profileImage
+            binding.profileImageUri = profileImage.toString()
 
             Log.d(TAG, binding.profileImageUri.toString())
 
@@ -221,7 +320,7 @@ class Register : Fragment() {
                                 firestoreViewModel.addUnusedFile(uid)
                                 firestoreViewModel.fileAdded!!.observe(viewLifecycleOwner, Observer {
                                     if (it.isNotBlank()) {
-                                        ///
+
                                     }
                                 })
                             }
@@ -229,7 +328,19 @@ class Register : Fragment() {
                     }
                 })
 
-                findNavController().navigate(R.id.register_to_profile)
+                val bundle = bundleOf("uid" to uid)
+                findNavController().navigate(R.id.register_self, bundle)
+            }
+        })
+    }
+
+    fun logOut() {
+        authViewModel.logOut(activity!!)
+        authViewModel.loggedOut!!.observe(viewLifecycleOwner, Observer {
+            if (it.isNotEmpty()) {
+                Log.d(TAG, "logout esuat: $it")
+            } else {
+                findNavController().navigate(R.id.register_to_login)
             }
         })
     }

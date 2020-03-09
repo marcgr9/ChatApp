@@ -11,12 +11,18 @@ import ro.marc.chatapp.utils.Utils.CredentialErrors
 // mode:
 // 0 - register simplu
 // 1 - register cu serviciu
+// 2 - profile
 
 class RegisterViewModel(
     var mode: Int
 ) : ViewModel() {
     var registerModel = RegisterModel()
-    var visibility: Int = if (mode == 1) View.GONE else View.VISIBLE
+
+    var titleVisibility = if (mode == 2) View.GONE else View.VISIBLE
+    var emailInteractible = mode != 2
+    var emailFocusable = if (mode == 2) View.NOT_FOCUSABLE else View.FOCUSABLE
+
+    var passwordAndEmailVisibility = if (mode == 1) View.GONE else View.VISIBLE
 
     val errors: LiveData<ArrayList<CredentialErrors?>?>
         get() = _errors
@@ -43,6 +49,9 @@ class RegisterViewModel(
         if (mode == 0) {
             validations.add(Utils.checkEmail(registerModel.email))
             validations.add(Utils.checkPassword(registerModel.password))
+        } else if (mode == 2) {
+            validations.add(Utils.checkEmail(registerModel.email))
+            validations.add(Utils.checkPasswordForProfile(registerModel.password))
         }
         validations.add(Utils.checkId(registerModel.id))
         validations.add(Utils.checkName(registerModel.name))

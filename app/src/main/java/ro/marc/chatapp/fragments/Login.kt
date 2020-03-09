@@ -100,7 +100,8 @@ class Login : Fragment() {
                                 bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
                             findNavController().navigate(R.id.login_to_register, bundle)
                         } else {
-                            findNavController().navigate(R.id.login_to_profile)
+                            val bundle = bundleOf("uid" to it.uid)
+                            findNavController().navigate(R.id.login_to_register, bundle)
                         }
                     } else {
                         authViewModel.logOut(activity!!)
@@ -129,7 +130,8 @@ class Login : Fragment() {
         authViewModel.loggedUser?.observe(viewLifecycleOwner, Observer {
             if (it.error == null) {
                 Log.d(TAG, "user logat cu email & parola: ${it.uid}")
-                findNavController().navigate(R.id.login_to_profile)
+                val bundle = bundleOf("uid" to it.uid)
+                findNavController().navigate(R.id.login_to_register, bundle)
             } else {
                 errField.text = it.error
             }
@@ -186,7 +188,8 @@ class Login : Fragment() {
                     findNavController().navigate(R.id.login_to_register, bundle)
                 } else {
                     Log.d(TAG, "logat cu google: ${it.uid}")
-                    findNavController().navigate(R.id.login_to_profile)
+                    val bundle = bundleOf("uid" to it.uid)
+                    findNavController().navigate(R.id.login_to_register, bundle)
                 }
             } else errField.text = it.error
         })

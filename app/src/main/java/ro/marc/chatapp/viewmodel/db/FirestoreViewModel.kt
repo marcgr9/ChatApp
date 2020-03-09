@@ -1,6 +1,5 @@
 package ro.marc.chatapp.viewmodel.db
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import ro.marc.chatapp.model.db.AuthModel
@@ -11,14 +10,9 @@ import ro.marc.chatapp.utils.FirestoreRepository
 class FirestoreViewModel: ViewModel() {
     private val firestoreRepository = FirestoreRepository()
 
-    var fetchedUser: LiveData<FirestoreUser?>? = null
-    fun getUser() {
-        fetchedUser = firestoreRepository.getUser()
-    }
-
-    var fetchedOtherUser: LiveData<FirestoreUser>? = null
+    var fetchedUser: LiveData<FirestoreUser>? = null
     fun getUser(uid: String) {
-        fetchedOtherUser = firestoreRepository.getUser(uid)
+        fetchedUser = firestoreRepository.getUser(uid)
     }
 
     var blocked: LiveData<Boolean>? = null
@@ -31,9 +25,9 @@ class FirestoreViewModel: ViewModel() {
         blockedStatus = firestoreRepository.changeBlockedStatus(data, data2, mode)
     }
 
-    var createdFirestoreUser: LiveData<AuthModel>? = null
-    fun createUserInFirestore(authenticatedUser: FirestoreUser) {
-        createdFirestoreUser = firestoreRepository.createUserInFirestoreIfNotExists(authenticatedUser)
+    var firestoreUser: LiveData<String>? = null
+    fun createOrUpdateFirestoreUser(user: FirestoreUser) {
+        firestoreUser = firestoreRepository.createOrUpdateUserInFirestore(user)
     }
 
     var idAvailable: LiveData<Boolean>? = null
@@ -64,5 +58,15 @@ class FirestoreViewModel: ViewModel() {
     var fileAdded: LiveData<String>? = null
     fun addUnusedFile(uid: String) {
         fileAdded = firestoreRepository.addUnusedImage(uid)
+    }
+
+    var updatedUser: LiveData<String>? = null
+    fun updateUser(user: FirestoreUser) {
+        updatedUser = firestoreRepository.updateUser(user)
+    }
+
+    var usersByName: LiveData<String>? = null
+    fun getByName(input: String) {
+        usersByName = firestoreRepository.getByName(input)
     }
 }

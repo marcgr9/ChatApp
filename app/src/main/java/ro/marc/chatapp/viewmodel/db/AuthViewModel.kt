@@ -40,4 +40,9 @@ class AuthViewModel: ViewModel() {
     fun logOut(activity: Activity) {
         loggedOut = authRepository.logOut(activity)
     }
+
+    var updatedPassword: LiveData<String>? = null
+    fun updatePassword(password: String) {
+        updatedPassword = authRepository.updatePassword(password)
+    }
 }
