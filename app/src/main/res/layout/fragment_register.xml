@@ -7,118 +7,230 @@
     <data>
         <variable
             name="registerViewModel"
-            type="ro.marc.chatapp.viewmodel.RegisterViewModel" />
+            type="ro.marc.chatapp.viewmodel.fragments.RegisterViewModel" />
+
+        <variable
+            name="profileImageUri"
+            type="android.net.Uri" />
     </data>
 
     <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:fitsSystemWindows="true" >
+        android:layout_height="fill_parent">
 
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="56dp"
+            android:paddingTop="48dp"
             android:paddingLeft="24dp"
-            android:paddingRight="24dp">
+            android:paddingRight="24dp"
+            android:gravity="center_horizontal"
+            android:id="@+id/constraintLayout">
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/appicon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_conversion_absoluteHeight="63dp"
+                tools:layout_conversion_absoluteWidth="72dp"
+                app:profileImage="@{profileImageUri}"
+                android:scaleType="fitXY"
+                android:onClick="@{() -> registerViewModel.onProfileImageClicked(true)}"/>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:textAlignment="center"
+                android:id="@+id/titlu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/register"
+                android:textAlignment="center"
                 android:textColor="#000000"
                 android:textIsSelectable="false"
+                android:textSize="32sp"
                 android:textStyle="bold"
-                android:textSize="32sp"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/logo"
+                tools:layout_conversion_absoluteHeight="43dp"
+                tools:layout_conversion_absoluteWidth="363dp" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+                android:id="@+id/l_id"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
-                <EditText android:id="@+id/id"
-                    android:layout_width="match_parent"
+                android:layout_marginTop="32dp"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/titlu"
+                app:startIconDrawable="@drawable/id"
+                tools:layout_conversion_absoluteHeight="53dp"
+                tools:layout_conversion_absoluteWidth="363dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/id"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textNoSuggestions"
                     android:hint="@string/id"
-                    android:maxLength="16"
-                    android:text="@={registerViewModel.registerModelLiveData.id}"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
-                <EditText android:id="@+id/email"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
-                    android:hint="@string/email"
-                    android:text="@={registerViewModel.registerModelLiveData.email}"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
-                <EditText android:id="@+id/nume"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:inputType="textNoSuggestions"
-                    android:text="@={registerViewModel.registerModelLiveData.name}"
-                    android:hint="@string/name" />
+                    android:maxLength="16"
+                    android:text="@={registerViewModel.registerModel.id}"
+                    tools:layout_conversion_absoluteHeight="53dp"
+                    tools:layout_conversion_absoluteWidth="363dp"
+                    tools:layout_editor_absoluteX="24dp"
+                    tools:layout_editor_absoluteY="182dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+                android:id="@+id/l_email"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
-                <EditText android:id="@+id/pass"
-                    android:layout_width="match_parent"
+                android:visibility="@{registerViewModel.visibility}"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/l_id"
+                app:startIconDrawable="@drawable/email"
+                tools:layout_conversion_absoluteHeight="53dp"
+                tools:layout_conversion_absoluteWidth="363dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPassword"
-                    android:text="@={registerViewModel.registerModelLiveData.password}"
+                    android:hint="@string/email"
+                    android:inputType="textEmailAddress"
+                    android:text="@={registerViewModel.registerModel.email}"
+                    tools:layout_conversion_absoluteHeight="53dp"
+                    tools:layout_conversion_absoluteWidth="363dp"
+                    tools:layout_editor_absoluteX="24dp"
+                    tools:layout_editor_absoluteY="251dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/l_nume"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/l_email"
+                app:startIconDrawable="@drawable/name"
+                tools:layout_conversion_absoluteHeight="53dp"
+                tools:layout_conversion_absoluteWidth="363dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/nume"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/name"
+                    android:inputType="textNoSuggestions"
+                    android:text="@={registerViewModel.registerModel.name}"
+                    tools:layout_conversion_absoluteHeight="53dp"
+                    tools:layout_conversion_absoluteWidth="363dp"
+                    tools:layout_editor_absoluteX="24dp"
+                    tools:layout_editor_absoluteY="321dp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/l_pass"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="@{registerViewModel.visibility}"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/l_nume"
+                app:passwordToggleEnabled="true"
+                app:startIconDrawable="@drawable/password"
+                tools:layout_conversion_absoluteHeight="53dp"
+                tools:layout_conversion_absoluteWidth="363dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/pass"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
                     android:hint="@string/password"
-                    />
+                    android:inputType="textPassword"
+                    android:text="@={registerViewModel.registerModel.password}"
+                    tools:layout_conversion_absoluteHeight="53dp"
+                    tools:layout_conversion_absoluteWidth="363dp"
+                    tools:layout_editor_absoluteX="24dp"
+                    tools:layout_editor_absoluteY="390dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
+                android:id="@+id/l_birthday"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp">
-                <EditText android:id="@+id/birthday"
-                    android:layout_width="match_parent"
+                app:boxBackgroundMode="none"
+                app:hintEnabled="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/l_pass"
+                app:startIconDrawable="@drawable/birthday"
+                tools:layout_conversion_absoluteHeight="53dp"
+                tools:layout_conversion_absoluteWidth="363dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/birthday"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:hint="@string/birthday"
                     android:inputType="date"
-                    android:text="@={registerViewModel.registerModelLiveData.date}"
-                    android:hint="@string/birthday" />
+                    android:text="@={registerViewModel.registerModel.birthday}"
+                    tools:layout_conversion_absoluteHeight="53dp"
+                    tools:layout_conversion_absoluteWidth="363dp"
+                    tools:layout_editor_absoluteX="24dp"
+                    tools:layout_editor_absoluteY="459dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
+                android:id="@+id/errField"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/errField"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="6dp"
                 android:textColor="@color/red"
-                />
-
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/l_birthday"
+                tools:layout_conversion_absoluteHeight="19dp"
+                tools:layout_conversion_absoluteWidth="0dp" />
 
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:id="@+id/registerBtn"
-                android:layout_gravity="center_horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:height="56dp"
+                android:backgroundTint="@color/main"
+                android:onClick="@{() -> registerViewModel.onRegisterClicked()}"
                 android:text="@string/register"
-                android:onClick="@{() -> registerViewModel.onRegisterClicked()}"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/errField"
+                tools:layout_conversion_absoluteHeight="56dp"
+                tools:layout_conversion_absoluteWidth="363dp" />
 
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </layout>

@@ -1,48 +1,45 @@
 package ro.marc.chatapp.fragments
 
-import android.content.Context
-import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.Navigation
-import kotlinx.android.synthetic.main.fragment_login.*
 import ro.marc.chatapp.databinding.FragmentLoginBinding
-import ro.marc.chatapp.viewmodel.RegisterViewModel
-import ro.marc.chatapp.databinding.FragmentRegisterBinding
-import ro.marc.chatapp.viewmodel.LoginViewModel
-import androidx.core.content.ContextCompat.startActivity
-import android.content.Intent
-import android.util.Log
-import android.widget.TextView
+import ro.marc.chatapp.viewmodel.fragments.LoginViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import kotlinx.android.synthetic.main.fragment_login.errField
-import kotlinx.android.synthetic.main.fragment_register.*
+import androidx.navigation.fragment.findNavController
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import android.content.Intent
+import android.util.Log
+import androidx.core.os.bundleOf
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import kotlinx.android.synthetic.main.fragment_login.*
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.GoogleAuthProvider
+import ro.marc.chatapp.R
+import ro.marc.chatapp.model.fragments.LoginModel
+import ro.marc.chatapp.viewmodel.db.AuthViewModel
 
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [Register.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [Register.newInstance] factory method to
- * create an instance of this fragment.
- */
 class Login : Fragment() {
-    private var listener: OnFragmentInteractionListener? = null
+    private val RC_SIGN_IN = 35
+    private val TAG = "ChatApp Login"
 
-    val errorId = "ERRLogin"
+    private lateinit var binding: FragmentLoginBinding
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var authViewModel: AuthViewModel
+    private lateinit var callbackManager: CallbackManager
 
-    lateinit var binding: FragmentLoginBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,69 +49,150 @@ class Login : Fragment() {
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         binding.executePendingBindings()
 
-        return binding.getRoot()
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val viewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
+        val viewModel: LoginViewModel = ViewModelProviders.of(this).get(
+            LoginViewModel::class.java)
+        authViewModel = ViewModelProviders.of(this).get(AuthViewModel::class.java)
+        callbackManager = CallbackManager.Factory.create()
 
-        viewModel.hasError().observe(this, Observer {
-            if (it == true) errField.text = getString(resources.getIdentifier(errorId , "string", "ro.marc.chatapp"))
+        viewModel.error.observe(viewLifecycleOwner, Observer {
+            if (it == true) errField.text = getString(R.string.ERRLogin)
             else errField.text = ""
 
         })
 
-        viewModel.clicked.observe(this, Observer {
-            goToRegister()
+        viewModel.clicked.observe(viewLifecycleOwner, Observer {
+            if (it == true) {
+                findNavController().navigate(R.id.login_to_register)
+                viewModel.onNoAccountClicked(false)
+            }
         })
+
+        viewModel.isSuccessful.observe(viewLifecycleOwner, Observer {
+            loginUser(it)
+        })
+
+        initButtons()
+        initGoogleClient()
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.loginViewModel = viewModel
-
     }
 
-    fun goToRegister() {
-        val navController = Navigation.findNavController(activity!!,
-            ro.marc.chatapp.R.id.navHostFragment
-        )
-        navController.navigate(ro.marc.chatapp.R.id.action_login_to_register)
+    private fun initButtons() {
+        //google_login_button.setOnClickListener { signInWithGoogle() }
+        buttonGoogle.setOnClickListener { signInWithGoogle()}
+        facebook_login_button.setPermissions("email", "public_profile")
+        facebook_login_button.fragment = this
+        facebook_login_button.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(loginResult: LoginResult) {
+                authViewModel.handleFacebook(loginResult.accessToken)
+                authViewModel.signedInWithFacebookUser?.observe(viewLifecycleOwner, Observer {
+                    if (it.error == null) {
+                        Log.d(TAG, "logat cu facebook in firebase: ${it.uid}")
+                        if (it.isNew) {
+                            val bundle =
+                                bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
+                            findNavController().navigate(R.id.login_to_register, bundle)
+                        } else {
+                            findNavController().navigate(R.id.login_to_profile)
+                        }
+                    } else {
+                        authViewModel.logOut(activity!!)
+                        authViewModel.loggedOut!!.observe(viewLifecycleOwner, Observer { it2 ->
+                            if (it2.isNotEmpty()) {
+                                errField.text = getString(R.string.general_error)
+                            } else errField.text = it.error
+                        })
+                    }
+                })
+            }
+
+            override fun onCancel() {}
+
+            override fun onError(error: FacebookException) {
+                val errorMessage = "${getString(R.string.general_error)}: ${error.message}"
+                errField.text = errorMessage
+            }
+        })
+
+        buttonFacebook.setOnClickListener { facebook_login_button.performClick() }
     }
 
-
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        listener?.onFragmentInteraction(uri)
+    private fun loginUser(data: LoginModel) {
+        authViewModel.loginUser(data.email!!, data.password!!)
+        authViewModel.loggedUser?.observe(viewLifecycleOwner, Observer {
+            if (it.error == null) {
+                Log.d(TAG, "user logat cu email & parola: ${it.uid}")
+                findNavController().navigate(R.id.login_to_profile)
+            } else {
+                errField.text = it.error
+            }
+        })
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            listener = context
+    private fun initGoogleClient() {
+        val googleSignInOptions: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(activity!!, googleSignInOptions)
+    }
+
+    private fun signInWithGoogle() {
+        val signInIntent: Intent = googleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_SIGN_IN)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_SIGN_IN) {
+            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account: GoogleSignInAccount? = task.getResult(ApiException::class.java)
+                if (account != null) {
+                    getGoogleAuthCredential(account)
+                }
+            } catch (e: ApiException) {
+                Log.d(TAG, "login cu google esuat: $e")
+                errField.text = e.message
+            }
         } else {
-            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+            Log.d(TAG, "intrat pe fb onActivityResult: $resultCode")
+            callbackManager.onActivityResult(requestCode, resultCode, data)
         }
+
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
+    private fun getGoogleAuthCredential(googleSignInAccount: GoogleSignInAccount) {
+        val googleTokenId = googleSignInAccount.idToken
+        val googleAuthCredential = GoogleAuthProvider.getCredential(googleTokenId, null)
+        signInWithGoogleAuthCredential(googleAuthCredential)
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments]
-     * (http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-    interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onFragmentInteraction(uri: Uri)
+    private fun signInWithGoogleAuthCredential(googleAuthCredential: AuthCredential) {
+        authViewModel.signInWithGoogle(googleAuthCredential)
+        authViewModel.signedInWithGoogleUser?.observe(this, Observer {
+            if (it.error == null) {
+                if (it.isNew) {
+                    Log.d(TAG, "user inregistrat cu google: ${it.uid}")
+                    val bundle = bundleOf("email" to it.email, "name" to it.name, "uid" to it.uid)
+                    findNavController().navigate(R.id.login_to_register, bundle)
+                } else {
+                    Log.d(TAG, "logat cu google: ${it.uid}")
+                    findNavController().navigate(R.id.login_to_profile)
+                }
+            } else errField.text = it.error
+        })
+    }
+
+    fun onGoogleClick(v: View) {
+        signInWithGoogle()
     }
 }
